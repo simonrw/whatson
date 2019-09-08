@@ -4,6 +4,11 @@
             "name": "belgrade",
             "url": "http://www.belgrade.co.uk/whats-on/",
             "root_url": "http://www.belgrade.co.uk/" 
+        },
+        {
+            "name": "albany",
+            "url": "https://albanytheatre.co.uk/whats-on/",
+            "root_url": "https://albanytheatre.co.uk/"
         }
     ]
 }

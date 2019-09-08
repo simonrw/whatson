@@ -11,6 +11,10 @@ from datetime import date
 from typing import NamedTuple, Union
 
 
+session = requests.Session()
+session.headers["User-Agent"] = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:68.0) Gecko/20100101 Firefox/68.0"
+
+
 class DateRange(NamedTuple):
     start: date
     end: date
@@ -55,7 +59,7 @@ def date_text_to_date(date_text, year):
 
 
 def parse_belgrade(url):
-    r = requests.get(url)
+    r = session.get(url)
     r.raise_for_status()
 
     html = r.text
@@ -84,10 +88,15 @@ def parse_belgrade(url):
                 yield Show(name=title, date=date)
 
 
+def parse_albany(url):
+    r = session.get(url)
+    r.raise_for_status()
+
+
 @click.command()
 @click.argument("filename")
 def main(filename):
-    parsers = {"belgrade": parse_belgrade}
+    parsers = {"belgrade": parse_belgrade, "albany": parse_albany}
 
     with open(filename) as infile:
         config = json.load(infile)
