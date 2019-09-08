@@ -9,10 +9,32 @@ import requests
 import re
 from datetime import date
 from typing import NamedTuple, Union
+from sqlalchemy import create_engine, Column, Integer, String  # type: ignore
+from sqlalchemy.ext.declarative import declarative_base  # type: ignore
+from sqlalchemy.types import Date  # type: ignore
+from sqlalchemy.orm import sessionmaker, scoped_session
+from contextlib import contextmanager
 
 
-session = requests.Session()
-session.headers[
+Base = declarative_base()
+engine = create_engine("postgres+psycopg2://whatson@localhost/whatson")
+Session = scoped_session(sessionmaker(bind=engine))
+
+@contextmanager
+def session():
+    session = Session()
+    try:
+        yield session
+        session.commit()
+    except Exception as e:
+        session.rollback()
+        raise e
+    finally:
+        session.close()
+
+
+rsess = requests.Session()
+rsess.headers[
     "User-Agent"
 ] = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:68.0) Gecko/20100101 Firefox/68.0"
 
@@ -22,20 +44,30 @@ class DateRange(NamedTuple):
     end: date
 
 
-class Show(NamedTuple):
-    name: str
-    date: Union[date, DateRange]
+class Show(Base):
+    __tablename__ = "shows"
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String, nullable=False)
+    theatre = Column(String, nullable=False)
+    start_date = Column(Date, nullable=False)
+    end_date = Column(Date, nullable=False)
+
+    def __repr__(self):
+        return f"<{self.name} between {self.start_date} and {self.end_date} at {self.theatre}>"
 
 
 def date_text_to_date(date_text, year=None):
     date_text = date_text.strip()
     if "-" in date_text:
         parts = date_text.split("-")
-        match = re.search(r"20\d{2}", date_text)
-        if not match:
-            raise ValueError("cannot find year in date string")
+        if year is None:
+            match = re.search(r"20\d{2}", date_text)
+            if not match:
+                raise ValueError("cannot find year in date string")
 
-        year = int(match.group(0))
+            year = int(match.group(0))
+
         return DateRange(
             start=date_text_to_date(parts[0], year),
             end=date_text_to_date(parts[1], year),
@@ -75,7 +107,7 @@ def date_text_to_date(date_text, year=None):
 
 
 def parse_belgrade(url):
-    r = session.get(url)
+    r = rsess.get(url)
     r.raise_for_status()
 
     html = r.text
@@ -101,11 +133,14 @@ def parse_belgrade(url):
 
                 date = date_text_to_date(date_text, year)
 
-                yield Show(name=title, date=date)
+                if isinstance(date, DateRange):
+                    yield Show(name=title, start_date=date.start, end_date=date.end)
+                else:
+                    yield Show(name=title, start_date=date, end_date=date)
 
 
 def parse_albany(url):
-    r = session.get(url)
+    r = rsess.get(url)
     r.raise_for_status()
 
     html = r.text
@@ -127,8 +162,7 @@ def parse_albany(url):
 @click.command()
 @click.argument("filename")
 def main(filename):
-    # parsers = {"belgrade": parse_belgrade, "albany": parse_albany}
-    parsers = {"albany": parse_albany}
+    parsers = {"belgrade": parse_belgrade, "albany": parse_albany}
 
     with open(filename) as infile:
         config = json.load(infile)
@@ -143,8 +177,10 @@ def main(filename):
             raise NotImplementedError(name)
         parsed = parser(url)
 
-        for item in parsed:
-            print(item)
+        with session() as sess:
+            for item in parsed:
+                item.theatre = name
+                sess.add(item)
 
 
 if __name__ == "__main__":
