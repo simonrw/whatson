@@ -1,10 +1,4 @@
 *.pyc
-
-#Added by cargo
-#
-#already existing elements are commented out
-
-/target
-**/*.rs.bk
+*.egg-info
 .mypy_cache
 venv
