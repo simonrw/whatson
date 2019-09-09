@@ -154,7 +154,10 @@ def parse_albany(url):
                 title = elem.find("h4").find("a").text
 
                 date = date_text_to_date(date_str)
-                yield Show(name=title, date=date)
+                if isinstance(date, DateRange):
+                    yield Show(name=title, start_date=date.start, end_date=date.end)
+                else:
+                    yield Show(name=title, start_date=date, end_date=date)
             except AttributeError:
                 continue
 
@@ -168,6 +171,7 @@ def main(filename):
         config = json.load(infile)
 
     for theatre in config["theatres"]:
+        print(theatre)
         name = theatre["name"]
         url = theatre["url"]
 
