@@ -16,21 +16,6 @@ from contextlib import contextmanager
 from .models import Base, Show
 
 
-engine = create_engine("postgres+psycopg2://whatson:Password123@localhost/whatson")
-Session = scoped_session(sessionmaker(bind=engine))
-
-@contextmanager
-def session():
-    session = Session()
-    try:
-        yield session
-        session.commit()
-    except Exception as e:
-        session.rollback()
-        raise e
-    finally:
-        session.close()
-
 
 rsess = requests.Session()
 rsess.headers[
