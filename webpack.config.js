@@ -1,4 +1,11 @@
+const path = require("path");
+
 module.exports = {
+  entry: "./src/index.js",
+  output: {
+    path: path.resolve(__dirname, "whatson/static/js"),
+    filename: "bundle.js",
+  },
   module: {
     rules: [{
       test: /\.elm$/,
