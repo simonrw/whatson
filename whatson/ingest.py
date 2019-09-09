@@ -11,12 +11,11 @@ from datetime import date
 from typing import NamedTuple, Union
 from sqlalchemy import create_engine, Column, Integer, String  # type: ignore
 from sqlalchemy.ext.declarative import declarative_base  # type: ignore
-from sqlalchemy.types import Date  # type: ignore
 from sqlalchemy.orm import sessionmaker, scoped_session
 from contextlib import contextmanager
+from .models import Base, Show
 
 
-Base = declarative_base()
 engine = create_engine("postgres+psycopg2://whatson@localhost/whatson")
 Session = scoped_session(sessionmaker(bind=engine))
 
@@ -42,19 +41,6 @@ rsess.headers[
 class DateRange(NamedTuple):
     start: date
     end: date
-
-
-class Show(Base):
-    __tablename__ = "shows"
-
-    id = Column(Integer, primary_key=True)
-    name = Column(String, nullable=False)
-    theatre = Column(String, nullable=False)
-    start_date = Column(Date, nullable=False)
-    end_date = Column(Date, nullable=False)
-
-    def __repr__(self):
-        return f"<{self.name} between {self.start_date} and {self.end_date} at {self.theatre}>"
 
 
 def date_text_to_date(date_text, year=None):
@@ -185,7 +171,3 @@ def main(filename):
             for item in parsed:
                 item.theatre = name
                 sess.add(item)
-
-
-if __name__ == "__main__":
-    main()
