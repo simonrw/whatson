@@ -9,6 +9,11 @@
             "name": "albany",
             "url": "https://albanytheatre.co.uk/whats-on/",
             "root_url": "https://albanytheatre.co.uk/"
+        },
+        {
+            "name": "hippodrome",
+            "url": "https://www.birminghamhippodrome.com/whats-on/",
+            "root_url": "https://www.birminghamhippodrome.com/"
         }
     ]
 }
