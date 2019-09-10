@@ -19,7 +19,7 @@ type alias RawDate =
 
 rawDateToString : RawDate -> String
 rawDateToString r =
-    String.fromInt r.year ++ "-" ++ String.fromInt r.month ++ "-" ++ String.fromInt r.day
+    String.fromInt r.day ++ "-" ++ String.fromInt r.month ++ "-" ++ String.fromInt r.year
 
 
 type alias Show =
