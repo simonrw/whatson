@@ -10,6 +10,7 @@ import re
 from datetime import date
 from typing import NamedTuple
 from .models import Base, Show, session, engine
+from sqlalchemy.exc import IntegrityError  # type: ignore
 
 
 rsess = requests.Session()
@@ -190,7 +191,10 @@ def main(filename, reset):
             raise NotImplementedError(name)
         parsed = parser(url, root_url)
 
-        with session() as sess:
-            for item in parsed:
-                item.theatre = name
-                sess.add(item)
+        for item in parsed:
+            try:
+                with session() as sess:
+                    item.theatre = name
+                    sess.add(item)
+            except IntegrityError:
+                continue
