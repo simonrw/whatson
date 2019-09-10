@@ -48,3 +48,9 @@ def reset():
     engine = create_engine("postgres+psycopg2://whatson:Password123@localhost/whatson")
     Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)
+
+
+def init_test_db():
+    engine = create_engine("postgres+psycopg2://whatson:Password123@localhost/whatson-test")
+    Base.metadata.drop_all(bind=engine)
+    Base.metadata.create_all(bind=engine)
