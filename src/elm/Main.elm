@@ -211,8 +211,8 @@ viewShows shows =
 
 viewShow : Show -> Html Msg
 viewShow show =
-    a [ href show.linkUrl ]
-        [ div [ class "shadow w-64 m-8 p-8" ]
+    div [ class "shadow w-64 m-8 p-8" ]
+        [ a [ href show.linkUrl ]
             [ img [ class "w-64", src show.imageUrl ] []
             , p [ class "text-lg font-semibold" ]
                 [ text show.name ]
