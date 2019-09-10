@@ -2,6 +2,7 @@ from flask import jsonify, Flask, render_template, request
 from .models import Show, session
 from sqlalchemy import func
 import json
+from typing import NamedTuple
 
 
 app = Flask("whatson")
@@ -36,7 +37,7 @@ class ShowEncoder(json.JSONEncoder):
 app.json_encoder = ShowEncoder
 
 
-@app.route("/api/calendar", methods=["POST"])
+@app.route("/api/shows", methods=["POST"])
 def get_by_month():
     try:
         month = int(request.json["month"])
@@ -58,4 +59,28 @@ def get_by_month():
 
         print(shows)
 
-        return jsonify(status="ok", shows=[ShowPresenter(show) for show in shows])
+        return jsonify(shows=[ShowPresenter(show) for show in shows])
+
+
+class DateMonthYear(NamedTuple):
+    month: int
+    year: int
+
+
+@app.route("/api/months", methods=["GET"])
+def get_months():
+    with session() as sess:
+        query = sess.query(Show)
+
+        shows = query.all()
+
+        combos = set()
+        for show in shows:
+            combos.add(
+                DateMonthYear(month=show.start_date.month, year=show.start_date.year)
+            )
+            combos.add(
+                DateMonthYear(month=show.end_date.month, year=show.end_date.year)
+            )
+
+        return jsonify(dates=[{"month": d.month, "year": d.year} for d in combos])

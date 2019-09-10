@@ -13,7 +13,7 @@ from sqlalchemy import create_engine, Column, Integer, String  # type: ignore
 from sqlalchemy.ext.declarative import declarative_base  # type: ignore
 from sqlalchemy.orm import sessionmaker, scoped_session
 from contextlib import contextmanager
-from .models import Base, Show
+from .models import Base, Show, session
 
 
 
