@@ -99,18 +99,25 @@ class Parser(abc.ABC):
         r.raise_for_status()
 
         html = r.text
-        soup = BeautifulSoup(html, "html.parser")
+        self.soup = BeautifulSoup(html, "html.parser")
 
-        return self.scrape(soup)
+        return self.scrape()
+
+    def next_page(self, url):
+        r = rsess.get(url)
+        r.raise_for_status()
+
+        html = r.text
+        self.soup = BeautifulSoup(html, "html.parser")
 
     @abc.abstractmethod
-    def scrape(self, soup):
+    def scrape(self):
         pass
 
 
 class ParseBelgrade(Parser):
-    def scrape(self, soup):
-        container = soup.find("div", class_="list-productions")
+    def scrape(self):
+        container = self.soup.find("div", class_="list-productions")
         year = -1
         for elem in container.contents:
             if isinstance(elem, Tag):
@@ -159,8 +166,8 @@ class ParseBelgrade(Parser):
 
 
 class ParseAlbany(Parser):
-    def scrape(self, soup):
-        container = soup.find("div", class_="query_block_content")
+    def scrape(self):
+        container = self.soup.find("div", class_="query_block_content")
         for elem in container.children:
             if isinstance(elem, Tag):
                 try:
@@ -194,37 +201,48 @@ class ParseAlbany(Parser):
 
 
 class ParseHippodrome(Parser):
-    def scrape(self, soup):
-        container = soup.find("ul", class_="main-events-list")
-        for elem in container.find_all("li", class_="events-list-item"):
-            item = elem.find("div", class_="performance-listing")
+    def scrape(self):
+        while True:
+            container = self.soup.find("ul", class_="main-events-list")
+            for elem in container.find_all("li", class_="events-list-item"):
+                item = elem.find("div", class_="performance-listing")
 
-            image_url = elem.find("a", class_="block").find("img").attrs["src"]
+                try:
+                    image_url = elem.find("a", class_="block").find("img").attrs["src"]
+                except AttributeError:
+                    image_url = ""
 
-            link_url = item.find("a", class_="block").attrs["href"]
+                link_url = item.find("a", class_="block").attrs["href"]
 
-            details = item.find("div", class_="event-details")
-            title = details.find("h5", class_="performance-listing-title").text
-            date = date_text_to_date(
-                details.find("p", class_="performance-listing-date").text
-            )
-
-            if isinstance(date, DateRange):
-                yield Show(
-                    name=title,
-                    image_url=image_url,
-                    link_url=link_url,
-                    start_date=date.start,
-                    end_date=date.end,
+                details = item.find("div", class_="event-details")
+                title = details.find("h5", class_="performance-listing-title").text
+                date = date_text_to_date(
+                    details.find("p", class_="performance-listing-date").text
                 )
+
+                if isinstance(date, DateRange):
+                    yield Show(
+                        name=title,
+                        image_url=image_url,
+                        link_url=link_url,
+                        start_date=date.start,
+                        end_date=date.end,
+                    )
+                else:
+                    yield Show(
+                        name=title,
+                        image_url=image_url,
+                        link_url=link_url,
+                        start_date=date,
+                        end_date=date,
+                    )
+
+            next_link = self.soup.find("a", class_="next")
+            if next_link:
+                next_url = next_link.attrs["href"]
+                self.next_page(next_url)
             else:
-                yield Show(
-                    name=title,
-                    image_url=image_url,
-                    link_url=link_url,
-                    start_date=date,
-                    end_date=date,
-                )
+                break
 
 
 @click.command()
@@ -236,8 +254,8 @@ def main(filename, reset):
         Base.metadata.create_all(bind=engine)
 
     parsers = {
-        "belgrade": ParseBelgrade,
-        "albany": ParseAlbany,
+        # "belgrade": ParseBelgrade,
+        # "albany": ParseAlbany,
         "hippodrome": ParseHippodrome,
     }
 
