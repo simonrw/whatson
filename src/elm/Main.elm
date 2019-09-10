@@ -190,7 +190,7 @@ rawDateDecoder =
 
 view : Model -> Html Msg
 view model =
-    div [ class "text-gray-900 p-16 max-w-6xl" ]
+    div [ class "text-gray-900 p-16" ]
         [ h1 [ class "text-3xl font-semibold" ]
             [ text "What's on?"
             ]
