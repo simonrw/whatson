@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
 
+import sys
+import abc
 import click
 import json
 from bs4 import BeautifulSoup  # type: ignore
@@ -12,6 +14,8 @@ from typing import NamedTuple
 from .models import Base, Show, session, engine
 from sqlalchemy.exc import IntegrityError  # type: ignore
 
+
+CURRENT_YEAR = date.today().year
 
 rsess = requests.Session()
 rsess.headers[
@@ -25,22 +29,22 @@ class DateRange(NamedTuple):
 
 
 def date_text_to_date(date_text, year=None):
-    date_text = date_text.strip()
+    date_text = date_text.strip().lower()
     if "-" in date_text:
         parts = date_text.split("-")
         if year is None:
             match = re.search(r"20\d{2}", date_text)
             if not match:
-                raise ValueError("cannot find year in date string")
-
-            year = int(match.group(0))
+                year = CURRENT_YEAR
+            else:
+                year = int(match.group(0))
 
         return DateRange(
             start=date_text_to_date(parts[0], year),
             end=date_text_to_date(parts[1], year),
         )
     else:
-        match = re.match(
+        match = re.search(
             r"(?P<day_str>\d+)\w*\s*(?P<month_str>\w+)\s*(?P<year_str>\d+)?", date_text
         )
         if not match:
@@ -61,10 +65,22 @@ def date_text_to_date(date_text, year=None):
             "october",
             "november",
             "december",
-        ].index(month_str)
+            "jan",
+            "feb",
+            "mar",
+            "apr",
+            "may",
+            "jun",
+            "jul",
+            "aug",
+            "sep",
+            "oct",
+            "nov",
+            "dec",
+        ].index(month_str) % 12
 
         if year is None and match.group("year_str") is None:
-            raise ValueError("cannot determine year")
+            year = CURRENT_YEAR
 
         if year is not None:
             return date(year, month + 1, day)
@@ -73,97 +89,142 @@ def date_text_to_date(date_text, year=None):
             return date(year, month + 1, day)
 
 
-def parse_belgrade(url, root_url):
-    r = rsess.get(url)
-    r.raise_for_status()
+class Parser(abc.ABC):
+    def __init__(self, url, root_url):
+        self.url = url
+        self.root_url = root_url
 
-    html = r.text
-    soup = BeautifulSoup(html, "html.parser")
+    def parse(self):
+        r = rsess.get(self.url)
+        r.raise_for_status()
 
-    container = soup.find("div", class_="list-productions")
-    year = -1
-    for elem in container.contents:
-        if isinstance(elem, Tag):
-            if elem.attrs.get("id") == "production-navigation":
-                continue
+        html = r.text
+        soup = BeautifulSoup(html, "html.parser")
 
-            if elem.name == "h2":
-                text = elem.text.lower()
-                _, year_text = text.split()
-                year = int(year_text)
-            else:
-                if "production-list-item" not in elem.attrs["class"]:
+        return self.scrape(soup)
+
+    @abc.abstractmethod
+    def scrape(self, soup):
+        pass
+
+
+class ParseBelgrade(Parser):
+    def scrape(self, soup):
+        container = soup.find("div", class_="list-productions")
+        year = -1
+        for elem in container.contents:
+            if isinstance(elem, Tag):
+                if elem.attrs.get("id") == "production-navigation":
                     continue
 
-                title = elem.find("h3").text.strip()
-                date_text = elem.find("p", class_="date").text.strip().lower()
+                if elem.name == "h2":
+                    text = elem.text.lower()
+                    _, year_text = text.split()
+                    year = int(year_text)
+                else:
+                    if "production-list-item" not in elem.attrs["class"]:
+                        continue
 
-                link_url = elem.find("a", class_="production-link").attrs["href"]
-                link_url = "".join([root_url, link_url])
+                    title = elem.find("h3").text.strip()
+                    date_text = elem.find("p", class_="date").text.strip().lower()
 
-                image_url = (
-                    elem.find("a", class_="production-link").find("img").attrs["src"]
+                    link_url = elem.find("a", class_="production-link").attrs["href"]
+                    link_url = "".join([self.root_url, link_url])
+
+                    image_url = (
+                        elem.find("a", class_="production-link")
+                        .find("img")
+                        .attrs["src"]
+                    )
+                    image_url = "".join([self.root_url, image_url])
+
+                    date = date_text_to_date(date_text, year)
+
+                    if isinstance(date, DateRange):
+                        yield Show(
+                            name=title,
+                            image_url=image_url,
+                            link_url=link_url,
+                            start_date=date.start,
+                            end_date=date.end,
+                        )
+                    else:
+                        yield Show(
+                            name=title,
+                            image_url=image_url,
+                            link_url=link_url,
+                            start_date=date,
+                            end_date=date,
+                        )
+
+
+class ParseAlbany(Parser):
+    def scrape(self, soup):
+        container = soup.find("div", class_="query_block_content")
+        for elem in container.children:
+            if isinstance(elem, Tag):
+                try:
+                    date_str = elem.find(class_="show-date").text.lower()
+                    title = elem.find("h4").find("a").text
+                    image_url = elem.find("img").attrs["src"]
+                    image_url = "".join([self.root_url, image_url])
+
+                    link_url = elem.find("h4").find("a").attrs["href"]
+                    link_url = "".join([self.root_url, link_url])
+
+                    date = date_text_to_date(date_str)
+                    if isinstance(date, DateRange):
+                        yield Show(
+                            name=title,
+                            image_url=image_url,
+                            link_url=link_url,
+                            start_date=date.start,
+                            end_date=date.end,
+                        )
+                    else:
+                        yield Show(
+                            name=title,
+                            image_url=image_url,
+                            link_url=link_url,
+                            start_date=date,
+                            end_date=date,
+                        )
+                except AttributeError:
+                    continue
+
+
+class ParseHippodrome(Parser):
+    def scrape(self, soup):
+        container = soup.find("ul", class_="main-events-list")
+        for elem in container.find_all("li", class_="events-list-item"):
+            item = elem.find("div", class_="performance-listing")
+
+            image_url = elem.find("a", class_="block").find("img").attrs["src"]
+
+            link_url = item.find("a", class_="block").attrs["href"]
+
+            details = item.find("div", class_="event-details")
+            title = details.find("h5", class_="performance-listing-title").text
+            date = date_text_to_date(
+                details.find("p", class_="performance-listing-date").text
+            )
+
+            if isinstance(date, DateRange):
+                yield Show(
+                    name=title,
+                    image_url=image_url,
+                    link_url=link_url,
+                    start_date=date.start,
+                    end_date=date.end,
                 )
-                image_url = "".join([root_url, image_url])
-
-                date = date_text_to_date(date_text, year)
-
-                if isinstance(date, DateRange):
-                    yield Show(
-                        name=title,
-                        image_url=image_url,
-                        link_url=link_url,
-                        start_date=date.start,
-                        end_date=date.end,
-                    )
-                else:
-                    yield Show(
-                        name=title,
-                        image_url=image_url,
-                        link_url=link_url,
-                        start_date=date,
-                        end_date=date,
-                    )
-
-
-def parse_albany(url, root_url):
-    r = rsess.get(url)
-    r.raise_for_status()
-
-    html = r.text
-    soup = BeautifulSoup(html, "html.parser")
-
-    container = soup.find("div", class_="query_block_content")
-    for elem in container.children:
-        if isinstance(elem, Tag):
-            try:
-                date_str = elem.find(class_="show-date").text.lower()
-                title = elem.find("h4").find("a").text
-                image_url = elem.find("img").attrs["src"]
-                image_url = "".join([root_url, image_url])
-
-                link_url = elem.find("h4").find("a").attrs["href"]
-                link_url = "".join([root_url, link_url])
-
-                date = date_text_to_date(date_str)
-                if isinstance(date, DateRange):
-                    yield Show(
-                        name=title,
-                        image_url=image_url,
-                        link_url=link_url,
-                        start_date=date.start,
-                        end_date=date.end,
-                    )
-                else:
-                    yield Show(
-                        name=title,
-                        image_url=image_url,
-                        link_url=link_url,
-                        start_date=date,
-                        end_date=date,
-                    )
-            except AttributeError:
-                continue
+            else:
+                yield Show(
+                    name=title,
+                    image_url=image_url,
+                    link_url=link_url,
+                    start_date=date,
+                    end_date=date,
+                )
 
 
 @click.command()
@@ -174,7 +235,11 @@ def main(filename, reset):
         Base.metadata.drop_all(bind=engine)
         Base.metadata.create_all(bind=engine)
 
-    parsers = {"belgrade": parse_belgrade, "albany": parse_albany}
+    parsers = {
+        "belgrade": ParseBelgrade,
+        "albany": ParseAlbany,
+        "hippodrome": ParseHippodrome,
+    }
 
     with open(filename) as infile:
         config = json.load(infile)
@@ -189,7 +254,7 @@ def main(filename, reset):
         if not parser:
             continue
             raise NotImplementedError(name)
-        parsed = parser(url, root_url)
+        parsed = parser(url, root_url).parse()
 
         for item in parsed:
             try:
