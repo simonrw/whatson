@@ -8,13 +8,8 @@ from bs4.element import Tag  # type: ignore
 import requests
 import re
 from datetime import date
-from typing import NamedTuple, Union
-from sqlalchemy import create_engine, Column, Integer, String  # type: ignore
-from sqlalchemy.ext.declarative import declarative_base  # type: ignore
-from sqlalchemy.orm import sessionmaker, scoped_session
-from contextlib import contextmanager
-from .models import Base, Show, session
-
+from typing import NamedTuple
+from .models import Base, Show, session, engine
 
 
 rsess = requests.Session()
@@ -77,7 +72,7 @@ def date_text_to_date(date_text, year=None):
             return date(year, month + 1, day)
 
 
-def parse_belgrade(url):
+def parse_belgrade(url, root_url):
     r = rsess.get(url)
     r.raise_for_status()
 
@@ -101,16 +96,26 @@ def parse_belgrade(url):
 
                 title = elem.find("h3").text.strip()
                 date_text = elem.find("p", class_="date").text.strip().lower()
-
+                image_url = (
+                    elem.find("a", class_="production-link").find("img").attrs["src"]
+                )
+                image_url = "".join([root_url, image_url])
                 date = date_text_to_date(date_text, year)
 
                 if isinstance(date, DateRange):
-                    yield Show(name=title, start_date=date.start, end_date=date.end)
+                    yield Show(
+                        name=title,
+                        image_url=image_url,
+                        start_date=date.start,
+                        end_date=date.end,
+                    )
                 else:
-                    yield Show(name=title, start_date=date, end_date=date)
+                    yield Show(
+                        name=title, image_url=image_url, start_date=date, end_date=date
+                    )
 
 
-def parse_albany(url):
+def parse_albany(url, root_url):
     r = rsess.get(url)
     r.raise_for_status()
 
@@ -123,19 +128,33 @@ def parse_albany(url):
             try:
                 date_str = elem.find(class_="show-date").text.lower()
                 title = elem.find("h4").find("a").text
+                image_url = elem.find("img").attrs["src"]
+                image_url = "".join([root_url, image_url])
 
                 date = date_text_to_date(date_str)
                 if isinstance(date, DateRange):
-                    yield Show(name=title, start_date=date.start, end_date=date.end)
+                    yield Show(
+                        name=title,
+                        image_url=image_url,
+                        start_date=date.start,
+                        end_date=date.end,
+                    )
                 else:
-                    yield Show(name=title, start_date=date, end_date=date)
+                    yield Show(
+                        name=title, image_url=image_url, start_date=date, end_date=date
+                    )
             except AttributeError:
                 continue
 
 
 @click.command()
 @click.argument("filename")
-def main(filename):
+@click.option("--reset/--no-reset")
+def main(filename, reset):
+    if reset:
+        Base.metadata.drop_all(bind=engine)
+        Base.metadata.create_all(bind=engine)
+
     parsers = {"belgrade": parse_belgrade, "albany": parse_albany}
 
     with open(filename) as infile:
@@ -145,12 +164,13 @@ def main(filename):
         print(theatre)
         name = theatre["name"]
         url = theatre["url"]
+        root_url = theatre["root_url"]
 
         parser = parsers.get(name)
         if not parser:
             continue
             raise NotImplementedError(name)
-        parsed = parser(url)
+        parsed = parser(url, root_url)
 
         with session() as sess:
             for item in parsed:
