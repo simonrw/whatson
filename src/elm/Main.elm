@@ -3,7 +3,7 @@ module Main exposing (..)
 import Array
 import Browser
 import Html exposing (Html, div, h1, option, p, select, text)
-import Html.Attributes exposing (value)
+import Html.Attributes exposing (class, value)
 import Html.Events exposing (onInput)
 import Http
 import Json.Decode as D
@@ -190,8 +190,8 @@ rawDateDecoder =
 
 view : Model -> Html Msg
 view model =
-    div []
-        [ h1 []
+    div [ class "text-gray-900 p-16 max-w-6xl" ]
+        [ h1 [ class "text-3xl font-semibold" ]
             [ text "What's on?"
             ]
         , modelSelect model
@@ -201,14 +201,14 @@ view model =
 
 viewShows : Shows -> Html Msg
 viewShows shows =
-    div [] <|
+    div [ class "flex flex-wrap" ] <|
         List.map viewShow shows
 
 
 viewShow : Show -> Html Msg
 viewShow show =
-    div []
-        [ p []
+    div [ class "shadow w-64 m-8 p-8" ]
+        [ p [ class "text-lg font-semibold" ]
             [ text show.name ]
         , p []
             [ text show.theatre ]
@@ -272,7 +272,7 @@ modelSelect model =
             initialValue =
                 option [ value "" ] [ text "-" ]
         in
-        select [ onInput (\i -> SelectedMonth i) ] <|
+        select [ class "block appearance-none bg-white border border-gray-400 hover:border-gray-500 px-4 py-2 pr-8 rounded shadow leading-tight focus:outline-none focus:shadow-outline", onInput (\i -> SelectedMonth i) ] <|
             [ initialValue
             ]
                 ++ List.indexedMap optionFromMonth model.availableMonths
