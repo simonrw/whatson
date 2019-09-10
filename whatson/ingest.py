@@ -96,22 +96,32 @@ def parse_belgrade(url, root_url):
 
                 title = elem.find("h3").text.strip()
                 date_text = elem.find("p", class_="date").text.strip().lower()
+
+                link_url = elem.find("a", class_="production-link").attrs["href"]
+                link_url = "".join([root_url, link_url])
+
                 image_url = (
                     elem.find("a", class_="production-link").find("img").attrs["src"]
                 )
                 image_url = "".join([root_url, image_url])
+
                 date = date_text_to_date(date_text, year)
 
                 if isinstance(date, DateRange):
                     yield Show(
                         name=title,
                         image_url=image_url,
+                        link_url=link_url,
                         start_date=date.start,
                         end_date=date.end,
                     )
                 else:
                     yield Show(
-                        name=title, image_url=image_url, start_date=date, end_date=date
+                        name=title,
+                        image_url=image_url,
+                        link_url=link_url,
+                        start_date=date,
+                        end_date=date,
                     )
 
 
@@ -131,17 +141,25 @@ def parse_albany(url, root_url):
                 image_url = elem.find("img").attrs["src"]
                 image_url = "".join([root_url, image_url])
 
+                link_url = elem.find("h4").find("a").attrs["href"]
+                link_url = "".join([root_url, link_url])
+
                 date = date_text_to_date(date_str)
                 if isinstance(date, DateRange):
                     yield Show(
                         name=title,
                         image_url=image_url,
+                        link_url=link_url,
                         start_date=date.start,
                         end_date=date.end,
                     )
                 else:
                     yield Show(
-                        name=title, image_url=image_url, start_date=date, end_date=date
+                        name=title,
+                        image_url=image_url,
+                        link_url=link_url,
+                        start_date=date,
+                        end_date=date,
                     )
             except AttributeError:
                 continue

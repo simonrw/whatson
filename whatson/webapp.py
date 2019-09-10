@@ -22,6 +22,7 @@ class ShowPresenter(object):
             "name": self.show.name,
             "theatre": self.show.theatre,
             "image_url": self.show.image_url,
+            "link_url": self.show.link_url,
             "start_date": self.show.start_date.isoformat(),
             "end_date": self.show.end_date.isoformat(),
         }

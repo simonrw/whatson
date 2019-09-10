@@ -2,8 +2,8 @@ module Main exposing (..)
 
 import Array
 import Browser
-import Html exposing (Html, div, h1, img, option, p, select, text)
-import Html.Attributes exposing (class, src, value)
+import Html exposing (Html, a, div, h1, img, option, p, select, text)
+import Html.Attributes exposing (class, href, src, value)
 import Html.Events exposing (onInput)
 import Http
 import Json.Decode as D
@@ -26,6 +26,7 @@ type alias Show =
     { name : String
     , theatre : String
     , imageUrl : String
+    , linkUrl : String
     , startDate : RawDate
     , endDate : RawDate
     }
@@ -158,10 +159,11 @@ showsDecoder =
 
 showDecoder : D.Decoder Show
 showDecoder =
-    D.map5 Show
+    D.map6 Show
         (D.field "name" D.string)
         (D.field "theatre" D.string)
         (D.field "image_url" D.string)
+        (D.field "link_url" D.string)
         (D.field "start_date" rawDateDecoder)
         (D.field "end_date" rawDateDecoder)
 
@@ -209,14 +211,16 @@ viewShows shows =
 
 viewShow : Show -> Html Msg
 viewShow show =
-    div [ class "shadow w-64 m-8 p-8" ]
-        [ img [ class "w-64", src show.imageUrl ] []
-        , p [ class "text-lg font-semibold" ]
-            [ text show.name ]
-        , p []
-            [ text show.theatre ]
-        , p []
-            [ text <| rawDateToString show.startDate ++ " to " ++ rawDateToString show.endDate ]
+    a [ href show.linkUrl ]
+        [ div [ class "shadow w-64 m-8 p-8" ]
+            [ img [ class "w-64", src show.imageUrl ] []
+            , p [ class "text-lg font-semibold" ]
+                [ text show.name ]
+            , p []
+                [ text show.theatre ]
+            , p []
+                [ text <| rawDateToString show.startDate ++ " to " ++ rawDateToString show.endDate ]
+            ]
         ]
 
 
