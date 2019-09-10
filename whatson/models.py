@@ -33,6 +33,7 @@ class Show(Base):
     name = Column(String, nullable=False)
     theatre = Column(String, nullable=False)
     image_url = Column(String)
+    link_url = Column(String)
     start_date = Column(Date, nullable=False)
     end_date = Column(Date, nullable=False)
 
