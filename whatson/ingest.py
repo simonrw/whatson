@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 
-import sys
 import abc
 import click
 import json
@@ -28,67 +27,6 @@ class DateRange(NamedTuple):
     end: date
 
 
-def date_text_to_date(date_text, year=None):
-    date_text = date_text.strip().lower()
-    if "-" in date_text:
-        parts = date_text.split("-")
-        if year is None:
-            match = re.search(r"20\d{2}", date_text)
-            if not match:
-                year = CURRENT_YEAR
-            else:
-                year = int(match.group(0))
-
-        return DateRange(
-            start=date_text_to_date(parts[0], year),
-            end=date_text_to_date(parts[1], year),
-        )
-    else:
-        match = re.search(
-            r"(?P<day_str>\d+)\w*\s*(?P<month_str>\w+)\s*(?P<year_str>\d+)?", date_text
-        )
-        if not match:
-            raise ValueError("error parsing string {}".format(date_text))
-
-        day = int(match.group("day_str"))
-        month_str = match.group("month_str")
-        month = [
-            "january",
-            "february",
-            "march",
-            "april",
-            "may",
-            "june",
-            "july",
-            "august",
-            "september",
-            "october",
-            "november",
-            "december",
-            "jan",
-            "feb",
-            "mar",
-            "apr",
-            "may",
-            "jun",
-            "jul",
-            "aug",
-            "sep",
-            "oct",
-            "nov",
-            "dec",
-        ].index(month_str) % 12
-
-        if year is None and match.group("year_str") is None:
-            year = CURRENT_YEAR
-
-        if year is not None:
-            return date(year, month + 1, day)
-        else:
-            year = int(match.group("year_str"))
-            return date(year, month + 1, day)
-
-
 class Parser(abc.ABC):
     def __init__(self, url, root_url):
         self.url = url
@@ -109,6 +47,67 @@ class Parser(abc.ABC):
 
         html = r.text
         self.soup = BeautifulSoup(html, "html.parser")
+
+    def date_text_to_date(self, date_text, year=None):
+        date_text = date_text.strip().lower()
+        if "-" in date_text:
+            parts = date_text.split("-")
+            if year is None:
+                match = re.search(r"20\d{2}", date_text)
+                if not match:
+                    year = CURRENT_YEAR
+                else:
+                    year = int(match.group(0))
+
+            return DateRange(
+                start=self.date_text_to_date(parts[0], year),
+                end=self.date_text_to_date(parts[1], year),
+            )
+        else:
+            match = re.search(
+                r"(?P<day_str>\d+)\w*\s*(?P<month_str>\w+)\s*(?P<year_str>\d+)?",
+                date_text,
+            )
+            if not match:
+                raise ValueError("error parsing string {}".format(date_text))
+
+            day = int(match.group("day_str"))
+            month_str = match.group("month_str")
+            month = [
+                "january",
+                "february",
+                "march",
+                "april",
+                "may",
+                "june",
+                "july",
+                "august",
+                "september",
+                "october",
+                "november",
+                "december",
+                "jan",
+                "feb",
+                "mar",
+                "apr",
+                "may",
+                "jun",
+                "jul",
+                "aug",
+                "sep",
+                "oct",
+                "nov",
+                "dec",
+            ].index(month_str) % 12
+
+            if year is None and match.group("year_str") is None:
+                year = CURRENT_YEAR
+
+            if year is not None:
+                return date(year, month + 1, day)
+            else:
+                year = int(match.group("year_str"))
+                return date(year, month + 1, day)
 
     @abc.abstractmethod
     def scrape(self):
@@ -145,7 +144,7 @@ class ParseBelgrade(Parser):
                     )
                     image_url = "".join([self.root_url, image_url])
 
-                    date = date_text_to_date(date_text, year)
+                    date = self.date_text_to_date(date_text, year)
 
                     if isinstance(date, DateRange):
                         yield Show(
@@ -179,7 +178,7 @@ class ParseAlbany(Parser):
                     link_url = elem.find("h4").find("a").attrs["href"]
                     link_url = "".join([self.root_url, link_url])
 
-                    date = date_text_to_date(date_str)
+                    date = self.date_text_to_date(date_str)
                     if isinstance(date, DateRange):
                         yield Show(
                             name=title,
@@ -216,7 +215,7 @@ class ParseHippodrome(Parser):
 
                 details = item.find("div", class_="event-details")
                 title = details.find("h5", class_="performance-listing-title").text
-                date = date_text_to_date(
+                date = self.date_text_to_date(
                     details.find("p", class_="performance-listing-date").text
                 )
 
@@ -256,7 +255,7 @@ def main(filename, reset):
     parsers = {
         # "belgrade": ParseBelgrade,
         # "albany": ParseAlbany,
-        "hippodrome": ParseHippodrome,
+        "hippodrome": ParseHippodrome
     }
 
     with open(filename) as infile:
