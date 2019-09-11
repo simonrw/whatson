@@ -2,8 +2,8 @@ module Main exposing (..)
 
 import Array
 import Browser
-import Html exposing (Html, a, div, h1, img, option, p, select, text)
-import Html.Attributes exposing (class, href, src, value)
+import Html exposing (Html, a, div, h1, img, label, option, p, select, text)
+import Html.Attributes exposing (class, for, href, id, src, value)
 import Html.Events exposing (onInput)
 import Http
 import Json.Decode as D
@@ -279,10 +279,13 @@ modelSelect model =
             initialValue =
                 option [ value "" ] [ text "-" ]
         in
-        select [ class "block appearance-none bg-white border border-gray-400 hover:border-gray-500 px-4 py-2 pr-8 rounded shadow leading-tight focus:outline-none focus:shadow-outline", onInput (\i -> SelectedMonth i) ] <|
-            [ initialValue
+        div []
+            [ label [ for "select-time" ] [ text "Choose a month" ]
+            , select [ id "select-time", class "block appearance-none bg-white border border-gray-400 hover:border-gray-500 px-4 py-2 pr-8 rounded shadow leading-tight focus:outline-none focus:shadow-outline", onInput (\i -> SelectedMonth i) ] <|
+                [ initialValue
+                ]
+                    ++ List.indexedMap optionFromMonth model.availableMonths
             ]
-                ++ List.indexedMap optionFromMonth model.availableMonths
 
 
 main =
