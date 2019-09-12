@@ -59,10 +59,13 @@ class Parser(abc.ABC):
                 else:
                     year = int(match.group(0))
 
-            return DateRange(
-                start=self.date_text_to_date(parts[0], year),
-                end=self.date_text_to_date(parts[1], year),
-            )
+            start = self.date_text_to_date(parts[0], year)
+            end = self.date_text_to_date(parts[1], year)
+
+            if start > end:
+                start = date(start.year - 1, start.month, start.day)
+
+            return DateRange(start=start, end=end)
         else:
             match = re.search(
                 r"(?P<day_str>\d+)\w*\s*(?P<month_str>\w+)\s*(?P<year_str>\d+)?",
@@ -253,8 +256,8 @@ def main(filename, reset):
         Base.metadata.create_all(bind=engine)
 
     parsers = {
-        # "belgrade": ParseBelgrade,
-        # "albany": ParseAlbany,
+        "belgrade": ParseBelgrade,
+        "albany": ParseAlbany,
         "hippodrome": ParseHippodrome
     }
 
