@@ -4,16 +4,6 @@ from whatson.ingest import ParseBelgrade, ParseAlbany
 from datetime import date
 
 
-@vcr.use_cassette("fixtures/test_parse_belgrade.yaml")
-def test_parse_belgrade():
-    root_url = "http://www.belgrade.co.uk/"
-    url = "http://www.belgrade.co.uk/whats-on/"
-
-    results = list(ParseBelgrade(url, root_url).parse())
-
-    assert len(results) == 66
-
-
 class TestParseAlbany(object):
     @vcr.use_cassette("fixtures/test_parse_albany.yaml")
     def setup(self):
