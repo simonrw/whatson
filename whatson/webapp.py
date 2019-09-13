@@ -56,10 +56,7 @@ def get_by_month():
             .filter(func.extract("month", Show.end_date) <= month)
             .filter(func.extract("year", Show.end_date) <= year)
         )
-        print(query)
         shows = query.all()
-
-        print(shows)
 
         return jsonify(shows=[ShowPresenter(show) for show in shows])
 
