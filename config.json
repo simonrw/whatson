@@ -11,6 +11,11 @@
             "root_url": "https://albanytheatre.co.uk/"
         },
         {
+            "name": "symphony-hall",
+            "url": "https://www.thsh.co.uk/whats-on/",
+            "root_url": "https://www.thsh.co.uk/"
+        },
+        {
             "name": "hippodrome",
             "url": "https://www.birminghamhippodrome.com/whats-on/",
             "root_url": "https://www.birminghamhippodrome.com/"
