@@ -2,7 +2,7 @@
 
 # Runs all tests, including elm and python tests
 
-set -e
+set -ex
 
 pytest testing
 npm test
