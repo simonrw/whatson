@@ -8,6 +8,7 @@ import Html.Events exposing (onInput)
 import Http
 import Json.Decode as D
 import Json.Encode as E
+import Set exposing (Set)
 
 
 type alias RawDate =
@@ -72,6 +73,8 @@ type alias Model =
     , selectedMonth : Maybe DateElement
     , shows : List Show
     , sortSelection : SortSelection
+    , theatres : Set String
+    , filterTheatre : Maybe String
     }
 
 
@@ -81,6 +84,8 @@ initModel =
     , selectedMonth = Nothing
     , shows = []
     , sortSelection = Date
+    , theatres = Set.empty
+    , filterTheatre = Nothing
     }
 
 
@@ -117,6 +122,7 @@ type Msg
     | GotShows (Result Http.Error Shows)
     | SelectedMonth String
     | SelectedSort SortSelection
+    | SelectedTheatre (Maybe String)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -137,7 +143,12 @@ update msg model =
         GotShows response ->
             case response of
                 Ok shows ->
-                    ( { model | shows = shows }, Cmd.none )
+                    let
+                        theatres =
+                            List.map .theatre shows
+                                |> Set.fromList
+                    in
+                    ( { model | shows = shows, theatres = theatres }, Cmd.none )
 
                 Err e ->
                     let
@@ -165,6 +176,9 @@ update msg model =
 
         SelectedSort selectedSort ->
             ( { model | sortSelection = selectedSort }, Cmd.none )
+
+        SelectedTheatre selectedTheatre ->
+            ( { model | filterTheatre = selectedTheatre }, Cmd.none )
 
 
 bodyFromModel : Model -> E.Value
@@ -231,17 +245,21 @@ rawDateDecoder =
 
 view : Model -> Html Msg
 view model =
-    div [ class "text-gray-900 p-16" ]
-        [ h1 [ class "text-3xl font-semibold" ]
-            [ text "What's on?"
+    div [ class "text-gray-900 p-16 flex" ]
+        [ div []
+            [ h1 [ class "text-3xl font-semibold" ]
+                [ text "What's on?"
+                ]
+            , modelSelect model
             ]
-        , modelSelect model
-        , viewShows model
+        , div []
+            [ viewShows model
+            ]
         ]
 
 
 viewShows : Model -> Html Msg
-viewShows { sortSelection, shows } =
+viewShows { sortSelection, shows, filterTheatre } =
     let
         sortedShows =
             case sortSelection of
@@ -250,9 +268,17 @@ viewShows { sortSelection, shows } =
 
                 Date ->
                     List.sortWith compareShowsByDate shows
+
+        toShowShows =
+            case filterTheatre of
+                Just t ->
+                    List.filter (\s -> s.theatre == t) sortedShows
+
+                Nothing ->
+                    sortedShows
     in
     div [ class "flex flex-wrap" ] <|
-        List.map viewShow sortedShows
+        List.map viewShow toShowShows
 
 
 viewShow : Show -> Html Msg
@@ -324,6 +350,9 @@ modelSelect model =
 
             initialValue =
                 option [ value "" ] [ text "-" ]
+
+            optionFromTheatre t =
+                option [ value t ] [ text t ]
         in
         div []
             [ div []
@@ -348,12 +377,32 @@ modelSelect model =
                                     SelectedSort Date
 
                                 _ ->
-                                    SelectedSort Name
+                                    SelectedSort Date
                         )
                     ]
                     [ option [ value "sort-by-name" ] [ text "Name" ]
                     , option [ value "sort-by-date" ] [ text "Date" ]
                     ]
+                ]
+            , div []
+                [ label [ for "select-theatre" ] [ text "Single theatre" ]
+                , select
+                    [ id "select-theatre"
+                    , class "block appearance-none bg-white border border-gray-400 hover:border-gray-500 px-4 py-2 pr-8 rounded shadow leading-tight focus:outline-none focus:shadow-outline"
+                    , onInput
+                        (\s ->
+                            case s of
+                                "" ->
+                                    SelectedTheatre Nothing
+
+                                t ->
+                                    SelectedTheatre (Just t)
+                        )
+                    ]
+                    ([ initialValue
+                     ]
+                        ++ List.map optionFromTheatre (Set.toList model.theatres)
+                    )
                 ]
             ]
 
