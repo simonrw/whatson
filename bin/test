@@ -1,0 +1,8 @@
+#!/bin/sh
+
+# Runs all tests, including elm and python tests
+
+set -e
+
+pytest testing
+npm test
