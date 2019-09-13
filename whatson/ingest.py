@@ -41,7 +41,7 @@ class Parser(abc.ABC):
         r.raise_for_status()
 
         html = r.text
-        self.soup = BeautifulSoup(html, "html.parser")
+        self.soup = BeautifulSoup(html, "lxml")
 
         return self.scrape()
 
@@ -50,7 +50,7 @@ class Parser(abc.ABC):
         r.raise_for_status()
 
         html = r.text
-        self.soup = BeautifulSoup(html, "html.parser")
+        self.soup = BeautifulSoup(html, "lxml")
 
     def date_text_to_date(self, date_text, year=None):
         date_text = date_text.strip().lower()
