@@ -21,6 +21,8 @@ rsess.headers[
     "User-Agent"
 ] = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:68.0) Gecko/20100101 Firefox/68.0"
 
+YEAR_RE = re.compile(r"20\d{2}")
+
 
 class DateRange(NamedTuple):
     start: date
@@ -246,6 +248,93 @@ class ParseHippodrome(Parser):
             else:
                 break
 
+    def date_text_to_date(self, date_text, year=None):
+        date_text = date_text.strip().lower()
+        if "-" in date_text or "&" in date_text:
+            if "-" in date_text:
+                parts = date_text.split("-")
+            elif "&" in date_text:
+                parts = date_text.split("&")
+
+            start_year_match = YEAR_RE.search(parts[0])
+            end_year_match = YEAR_RE.search(parts[1])
+
+            if start_year_match:
+                start_year = int(start_year_match.group(0))
+                start = self.date_text_to_date(parts[0], year=start_year)
+
+                if end_year_match:
+                    end = self.date_text_to_date(
+                        parts[1], year=int(end_year_match.group(0))
+                    )
+
+                else:
+                    end = self.date_text_to_date(parts[1], year=start_year)
+            else:
+
+                if end_year_match:
+                    start_year = int(end_year_match.group(0))
+                else:
+                    start_year = CURRENT_YEAR
+                start = self.date_text_to_date(parts[0], year=start_year)
+
+                if end_year_match:
+                    end = self.date_text_to_date(
+                        parts[1], year=int(end_year_match.group(0))
+                    )
+                else:
+                    end = self.date_text_to_date(parts[1], year=start_year)
+
+            if start > end:
+                start = date(start.year - 1, start.month, start.day)
+
+            return DateRange(start=start, end=end)
+        else:
+            match = re.search(
+                r"(?P<day_str>\d+)\w*\s*(?P<month_str>\w+)\s*(?P<year_str>\d+)?",
+                date_text,
+            )
+            if not match:
+                raise ValueError("error parsing string {}".format(date_text))
+
+            day = int(match.group("day_str"))
+            month_str = match.group("month_str")
+            month = [
+                "january",
+                "february",
+                "march",
+                "april",
+                "may",
+                "june",
+                "july",
+                "august",
+                "september",
+                "october",
+                "november",
+                "december",
+                "jan",
+                "feb",
+                "mar",
+                "apr",
+                "may",
+                "jun",
+                "jul",
+                "aug",
+                "sep",
+                "oct",
+                "nov",
+                "dec",
+            ].index(month_str) % 12
+
+            if year is None and match.group("year_str") is None:
+                year = CURRENT_YEAR
+
+            if year is not None:
+                return date(year, month + 1, day)
+            else:
+                year = int(match.group("year_str"))
+                return date(year, month + 1, day)
+
 
 @click.command()
 @click.argument("filename")
@@ -258,7 +347,7 @@ def main(filename, reset):
     parsers = {
         "belgrade": ParseBelgrade,
         "albany": ParseAlbany,
-        "hippodrome": ParseHippodrome
+        "hippodrome": ParseHippodrome,
     }
 
     with open(filename) as infile:
