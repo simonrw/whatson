@@ -343,8 +343,9 @@ class ParseSymphonyHall(Parser):
         page = 1
         while True:
             container = self.soup.find("ul", class_="grid cf")
+            assert len(container.contents) <= 16
             for elem in container.contents:
-                title = container.find("h3").text
+                title = elem.find("h3").text
 
                 link_url = elem.find("a", class_="event-block").attrs["href"]
                 image_url = (
