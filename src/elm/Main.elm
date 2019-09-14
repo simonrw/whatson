@@ -95,6 +95,19 @@ type alias DateElement =
     }
 
 
+compareDateElements : DateElement -> DateElement -> Order
+compareDateElements a b =
+    case compare a.year b.year of
+        LT ->
+            LT
+
+        GT ->
+            GT
+
+        EQ ->
+            compare a.month b.month
+
+
 init : () -> ( Model, Cmd Msg )
 init _ =
     ( initModel
@@ -131,7 +144,7 @@ update msg model =
         GotMonths response ->
             case response of
                 Ok months ->
-                    ( { model | availableMonths = months }, Cmd.none )
+                    ( { model | availableMonths = List.sortWith compareDateElements months }, Cmd.none )
 
                 Err e ->
                     let
@@ -158,6 +171,10 @@ update msg model =
                     ( model, Cmd.none )
 
         SelectedMonth selectedMonth ->
+            let
+                _ =
+                    Debug.log "selected month" selectedMonth
+            in
             String.toInt selectedMonth
                 |> Maybe.map
                     (\i ->
