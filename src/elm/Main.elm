@@ -380,8 +380,8 @@ modelSelect model =
                                     SelectedSort Date
                         )
                     ]
-                    [ option [ value "sort-by-name" ] [ text "Name" ]
-                    , option [ value "sort-by-date" ] [ text "Date" ]
+                    [ option [ value "sort-by-date" ] [ text "Date" ]
+                    , option [ value "sort-by-name" ] [ text "Name" ]
                     ]
                 ]
             , div []
