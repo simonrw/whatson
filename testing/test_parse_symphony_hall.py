@@ -26,3 +26,15 @@ class TestParseSymphonyHall(object):
     def test_parse_dates(self, idx, start, end):
         assert self.results[idx].start_date == start
         assert self.results[idx].end_date == end
+
+    def test_no_duplicate_show_names(self):
+        """
+        Regression test. A bug in the code caused repeated finding of the
+        same title throughout the page. This test ensures this does not happen
+        again.
+        """
+        names = [show.name for show in self.results]
+
+        # Check that they are basically unique (some show names may be
+        # repeated, but certainly not too many
+        assert len(set(names)) == 316
