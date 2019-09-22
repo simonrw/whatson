@@ -2,7 +2,7 @@ module Main exposing (..)
 
 import Array
 import Browser
-import Html exposing (Html, a, div, h1, img, label, option, p, select, text)
+import Html exposing (Html, a, div, h1, img, label, option, p, select, span, text)
 import Html.Attributes exposing (class, for, href, id, src, value)
 import Html.Events exposing (onInput)
 import Http
@@ -20,7 +20,18 @@ type alias RawDate =
 
 rawDateToString : RawDate -> String
 rawDateToString r =
-    String.fromInt r.day ++ "-" ++ String.fromInt r.month ++ "-" ++ String.fromInt r.year
+    let
+        monthStr =
+            Array.fromList [ "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" ]
+                |> Array.get (r.month - 1)
+                |> Maybe.withDefault "??"
+
+        dayStr =
+            Array.fromList [ "1st", "2nd", "3rd" ]
+                |> Array.get r.day
+                |> Maybe.withDefault (String.fromInt r.day ++ "th")
+    in
+    dayStr ++ " " ++ monthStr ++ " " ++ String.fromInt r.year
 
 
 compareDates : RawDate -> RawDate -> Order
@@ -300,6 +311,21 @@ viewShows { sortSelection, shows, filterTheatre } =
 
 viewShow : Show -> Html Msg
 viewShow show =
+    let
+        -- We want to prevent line breaks in dates, so we must handle the case
+        -- when the dates are equal, in which case we only show the one date.
+        -- If the dates are different, then show the two dates with " to "
+        -- inbetween them.
+        dateElem =
+            if show.startDate == show.endDate then
+                [ span [ class "whitespace-no-wrap" ] [ text <| rawDateToString show.startDate ] ]
+
+            else
+                [ span [ class "whitespace-no-wrap" ] [ text <| rawDateToString show.startDate ]
+                , text " to "
+                , span [ class "whitespace-no-wrap" ] [ text <| rawDateToString show.endDate ]
+                ]
+    in
     div [ class "shadow bg-gray-100 flex text-gray-900 rounded-lg w-64 m-8 p-8" ]
         [ a [ href show.linkUrl, class "flex flex-col flex-grow justify-between" ]
             [ div [ class "flex flex-col" ]
@@ -310,7 +336,7 @@ viewShow show =
                     [ text show.theatre ]
                 ]
             , p []
-                [ text <| rawDateToString show.startDate ++ " to " ++ rawDateToString show.endDate ]
+                dateElem
             ]
         ]
 
