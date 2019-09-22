@@ -10,6 +10,7 @@ setup(
         "console_scripts": [
             "whatson-ingest = whatson.ingest:main",
             "whatson-reset = whatson.models:reset",
+            "whatson-exportfixture = whatson.exportfixture:main",
         ]
     },
 )
