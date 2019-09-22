@@ -330,10 +330,10 @@ viewShow show =
         [ a [ href show.linkUrl, class "flex flex-col flex-grow justify-between" ]
             [ div [ class "flex flex-col" ]
                 [ img [ class "w-64 mb-8", src show.imageUrl ] []
-                , p [ class "text-lg font-semibold mb-4" ]
+                , p [ class "text-2xl tracking-tight font-semibold mb-4" ]
                     [ text show.name ]
                 , p [ class "mb-4" ]
-                    [ text show.theatre ]
+                    [ text <| "@ " ++ show.theatre ]
                 ]
             , p []
                 dateElem
