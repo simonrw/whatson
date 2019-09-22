@@ -1,7 +1,21 @@
 const path = require("path");
 
+const MODE = process.env.npm_lifecycle_event == "prod" ? "production" : "development";
+
+var elmOptions;
+if (MODE === "production") {
+  elmOptions = {
+    debug: false,
+    optimize: true,
+  };
+} else {
+  elmOptions = {
+    debug: true,
+  };
+}
+
 module.exports = {
-  mode: "development",
+  mode: MODE,
   entry: "./src/index.js",
   output: {
     path: path.resolve(__dirname, "whatson/static/js"),
@@ -14,9 +28,7 @@ module.exports = {
         exclude: [/elm-stuff/, /node_modules/],
         use: {
           loader: 'elm-webpack-loader',
-          options: {
-            debug: true,
-          },
+          options: elmOptions,
         },
       },
       {

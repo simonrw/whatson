@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "watch": "webpack -w --mode development",
+    "watch": "webpack -w",
+    "build": "webpack",
+    "prod": "webpack",
     "test": "elm-test"
   },
   "repository": {
