@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "watch": "webpack -w",
-    "build": "webpack",
-    "prod": "webpack",
+    "build": "NODE_ENV=development webpack",
+    "prod": "NODE_ENV=production webpack",
     "test": "elm-test"
   },
   "repository": {

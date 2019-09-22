@@ -1,6 +1,6 @@
 const path = require("path");
 
-const MODE = process.env.npm_lifecycle_event == "prod" ? "production" : "development";
+const MODE = process.env.NODE_ENV === "production" ? "production" : "development";
 
 var elmOptions;
 if (MODE === "production") {
