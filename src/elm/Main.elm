@@ -158,10 +158,6 @@ update msg model =
                     ( { model | availableMonths = List.sortWith compareDateElements months }, Cmd.none )
 
                 Err e ->
-                    let
-                        _ =
-                            Debug.log "error" e
-                    in
                     ( model, Cmd.none )
 
         GotShows response ->
@@ -175,17 +171,9 @@ update msg model =
                     ( { model | shows = shows, theatres = theatres }, Cmd.none )
 
                 Err e ->
-                    let
-                        _ =
-                            Debug.log "error" e
-                    in
                     ( model, Cmd.none )
 
         SelectedMonth selectedMonth ->
-            let
-                _ =
-                    Debug.log "selected month" selectedMonth
-            in
             String.toInt selectedMonth
                 |> Maybe.map
                     (\i ->
