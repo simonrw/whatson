@@ -50,7 +50,7 @@ module.exports = {
   },
   devServer: {
     contentBase: path.join(__dirname, "./whatson"),
-    publicPath: "/static/",
+    publicPath: "/static/js/",
     watchContentBase: true,
     port: 9000,
     proxy: {
