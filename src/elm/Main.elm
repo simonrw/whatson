@@ -261,9 +261,9 @@ rawDateDecoder =
 
 view : Model -> Html Msg
 view model =
-    div [ class "text-white p-4 m-4 flex-col" ]
+    div [ class "text-white p-4 m-4 flex-col md:text-2xl lg:text-lg" ]
         [ div [ class "flex-shrink-0" ]
-            [ h1 [ class "text-3xl font-semibold mb-8" ]
+            [ h1 [ class "text-3xl md:text-5xl font-semibold mb-8" ]
                 [ text "What's on?"
                 ]
             , modelSelect model
@@ -293,7 +293,7 @@ viewShows { sortSelection, shows, filterTheatre } =
                 Nothing ->
                     sortedShows
     in
-    div [ class "flex flex-wrap" ] <|
+    div [ class "flex flex-wrap md:justify-around" ] <|
         List.map viewShow toShowShows
 
 
@@ -314,10 +314,10 @@ viewShow show =
                 , span [ class "whitespace-no-wrap" ] [ text <| rawDateToString show.endDate ]
                 ]
     in
-    div [ class "shadow bg-gray-100 flex text-gray-900 rounded-lg p-4 mb-4" ]
+    div [ class "md:flex-grow lg:flex-grow-0 shadow bg-gray-100 flex text-gray-900 rounded-lg md:w-64 p-4 mb-4 md:m-4" ]
         [ a [ href show.linkUrl, class "flex flex-col flex-grow justify-between" ]
             [ div [ class "flex flex-col" ]
-                [ img [ class "mb-8", src show.imageUrl ] []
+                [ img [ class "w-screen md:w-64 mb-8", src show.imageUrl ] []
                 , p [ class "text-2xl tracking-tight font-semibold mb-4" ]
                     [ text show.name ]
                 , p [ class "mb-4" ]
