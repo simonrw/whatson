@@ -15,7 +15,6 @@ from functools import partial
 from sqlalchemy.exc import IntegrityError  # type: ignore
 from concurrent.futures import ThreadPoolExecutor
 
-
 CURRENT_YEAR = date.today().year
 
 rsess = requests.Session()
@@ -397,7 +396,7 @@ def upload_theatre(theatre, parsers):
 
     parser = parsers.get(name)
     if not parser:
-        return
+        raise ValueError("cannot find parser for {}".format(name))
     parsed = parser(url, root_url).parse()
 
     for item in parsed:
@@ -430,4 +429,4 @@ def main(filename, reset):
         config = json.load(infile)
 
     with ThreadPoolExecutor() as executor:
-        executor.map(worker_fn, config["theatres"])
+        results = list(executor.map(worker_fn, config["theatres"]))  # noqa
