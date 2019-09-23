@@ -314,10 +314,10 @@ viewShow show =
                 , span [ class "whitespace-no-wrap" ] [ text <| rawDateToString show.endDate ]
                 ]
     in
-    div [ class "shadow bg-gray-100 flex text-gray-900 rounded-lg w-32 p-8" ]
+    div [ class "shadow bg-gray-100 flex text-gray-900 rounded-lg p-4 mb-4" ]
         [ a [ href show.linkUrl, class "flex flex-col flex-grow justify-between" ]
             [ div [ class "flex flex-col" ]
-                [ img [ class "w-32 mb-8", src show.imageUrl ] []
+                [ img [ class "mb-8", src show.imageUrl ] []
                 , p [ class "text-2xl tracking-tight font-semibold mb-4" ]
                     [ text show.name ]
                 , p [ class "mb-4" ]
@@ -387,7 +387,7 @@ modelSelect model =
             optionFromTheatre t =
                 option [ value t ] [ text t ]
         in
-        div []
+        div [ class "mb-8" ]
             [ div [ class "my-4" ]
                 [ label [ for "select-time" ] [ text "Choose a month" ]
                 , select [ id "select-time", class "block appearance-none bg-white text-gray-900 border border-gray-400 hover:border-gray-500 px-4 py-2 pr-8 rounded shadow leading-tight focus:outline-none focus:shadow-outline", onInput (\i -> SelectedMonth i) ] <|
