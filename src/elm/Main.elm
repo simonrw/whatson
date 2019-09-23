@@ -261,9 +261,9 @@ rawDateDecoder =
 
 view : Model -> Html Msg
 view model =
-    div [ class "text-white p-16 flex" ]
+    div [ class "text-white p-4 m-4 flex-col" ]
         [ div [ class "flex-shrink-0" ]
-            [ h1 [ class "text-5xl font-semibold" ]
+            [ h1 [ class "text-3xl font-semibold mb-8" ]
                 [ text "What's on?"
                 ]
             , modelSelect model
@@ -314,10 +314,10 @@ viewShow show =
                 , span [ class "whitespace-no-wrap" ] [ text <| rawDateToString show.endDate ]
                 ]
     in
-    div [ class "shadow bg-gray-100 flex text-gray-900 rounded-lg w-64 m-8 p-8" ]
+    div [ class "shadow bg-gray-100 flex text-gray-900 rounded-lg w-32 p-8" ]
         [ a [ href show.linkUrl, class "flex flex-col flex-grow justify-between" ]
             [ div [ class "flex flex-col" ]
-                [ img [ class "w-64 mb-8", src show.imageUrl ] []
+                [ img [ class "w-32 mb-8", src show.imageUrl ] []
                 , p [ class "text-2xl tracking-tight font-semibold mb-4" ]
                     [ text show.name ]
                 , p [ class "mb-4" ]
@@ -388,14 +388,14 @@ modelSelect model =
                 option [ value t ] [ text t ]
         in
         div []
-            [ div []
+            [ div [ class "my-4" ]
                 [ label [ for "select-time" ] [ text "Choose a month" ]
                 , select [ id "select-time", class "block appearance-none bg-white text-gray-900 border border-gray-400 hover:border-gray-500 px-4 py-2 pr-8 rounded shadow leading-tight focus:outline-none focus:shadow-outline", onInput (\i -> SelectedMonth i) ] <|
                     [ initialValue
                     ]
                         ++ List.indexedMap optionFromMonth model.availableMonths
                 ]
-            , div []
+            , div [ class "my-4" ]
                 [ label [ for "select-sort" ] [ text "Sort by" ]
                 , select
                     [ id "select-sort"
@@ -417,7 +417,7 @@ modelSelect model =
                     , option [ value "sort-by-name" ] [ text "Name" ]
                     ]
                 ]
-            , div []
+            , div [ class "my-4" ]
                 [ label [ for "select-theatre" ] [ text "Single theatre" ]
                 , select
                     [ id "select-theatre"
