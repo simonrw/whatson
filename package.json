@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "watch": "webpack -w",
+    "watch": "webpack-dev-server -d -w",
     "build": "NODE_ENV=development webpack",
     "prod": "NODE_ENV=production webpack",
     "test": "elm-test"
@@ -31,6 +31,7 @@
     "style-loader": "^1.0.0",
     "tailwindcss": "^1.1.2",
     "webpack": "^4.39.3",
-    "webpack-cli": "^3.3.8"
+    "webpack-cli": "^3.3.8",
+    "webpack-dev-server": "^3.8.1"
   }
 }

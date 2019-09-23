@@ -26,10 +26,12 @@ module.exports = {
       {
         test: /\.elm$/,
         exclude: [/elm-stuff/, /node_modules/],
-        use: {
-          loader: 'elm-webpack-loader',
-          options: elmOptions,
-        },
+        use: [
+          {
+            loader: 'elm-webpack-loader',
+            options: elmOptions,
+          }
+        ],
       },
       {
         test: /\.css$/,
@@ -45,5 +47,16 @@ module.exports = {
         ],
       }
     ],
+  },
+  devServer: {
+    contentBase: path.join(__dirname, "./whatson"),
+    publicPath: "/static/",
+    watchContentBase: true,
+    port: 9000,
+    proxy: {
+      '!(/static/**/*.*)': {
+        target: 'http://127.0.0.1:5000',
+      },
+    },
   },
 };
