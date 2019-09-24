@@ -419,7 +419,14 @@ class ParseResortsWorldArena(SeleniumParser):
 
     def scrape(self):
         container = self.soup.find("div", id="home-results")
-        for event in container.find_all("div", class_="event-card"):
+        if not container:
+            raise ValueError("cannot find container element in HTML")
+
+        events = container.find_all("div", class_="event-card")
+        if not events:
+            raise ValueError("cannot find event items")
+
+        for event in events:
             link_tag = event.find("a", class_="eventhref")
             name = link_tag.find("span", class_="title").text
             link_url = "".join([self.root_url, link_tag.attrs["href"]])
