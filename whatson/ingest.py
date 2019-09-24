@@ -11,11 +11,8 @@ import re
 from datetime import date, datetime
 from typing import NamedTuple
 from .models import Base, Show, session, engine
-from functools import partial
 from sqlalchemy.exc import IntegrityError  # type: ignore
-from concurrent.futures import ThreadPoolExecutor
 from selenium import webdriver  # type: ignore
-from selenium.webdriver.firefox.options import Options  # type: ignore
 
 CURRENT_YEAR = date.today().year
 
@@ -528,10 +525,8 @@ def main(filename, reset):
         "resortsworld-arena": ParseResortsWorldArena,
     }
 
-    worker_fn = partial(upload_theatre, parsers=parsers)
-
     with open(filename) as infile:
         config = json.load(infile)
 
-    with ThreadPoolExecutor() as executor:
-        results = list(executor.map(worker_fn, config["theatres"]))  # noqa
+    for theatre in config["theatres"]:
+        upload_theatre(theatre, parsers=parsers)
