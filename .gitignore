@@ -5,3 +5,4 @@ venv
 node_modules
 whatson/static/js/bundle.js
 elm-stuff
+*driver.log

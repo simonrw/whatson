@@ -14,6 +14,8 @@ from .models import Base, Show, session, engine
 from functools import partial
 from sqlalchemy.exc import IntegrityError  # type: ignore
 from concurrent.futures import ThreadPoolExecutor
+from selenium import webdriver  # type: ignore
+from selenium.webdriver.firefox.options import Options  # type: ignore
 
 CURRENT_YEAR = date.today().year
 
@@ -30,27 +32,7 @@ class DateRange(NamedTuple):
     end: date
 
 
-class Parser(abc.ABC):
-    def __init__(self, url, root_url):
-        self.url = url
-        self.root_url = root_url
-
-    def parse(self):
-        r = rsess.get(self.url)
-        r.raise_for_status()
-
-        html = r.text
-        self.soup = BeautifulSoup(html, "lxml")
-
-        return self.scrape()
-
-    def next_page(self, url):
-        r = rsess.get(url)
-        r.raise_for_status()
-
-        html = r.text
-        self.soup = BeautifulSoup(html, "lxml")
-
+class DateParseMixin(object):
     def date_text_to_date(self, date_text, year=None):
         date_text = date_text.strip().lower()
         if "-" in date_text:
@@ -115,12 +97,34 @@ class Parser(abc.ABC):
                 year = int(match.group("year_str"))
                 return date(year, month + 1, day)
 
+
+class SoupParser(DateParseMixin, abc.ABC):
+    def __init__(self, url, root_url):
+        self.url = url
+        self.root_url = root_url
+
+    def parse(self):
+        r = rsess.get(self.url)
+        r.raise_for_status()
+
+        html = r.text
+        self.soup = BeautifulSoup(html, "lxml")
+
+        return self.scrape()
+
+    def next_page(self, url):
+        r = rsess.get(url)
+        r.raise_for_status()
+
+        html = r.text
+        self.soup = BeautifulSoup(html, "lxml")
+
     @abc.abstractmethod
     def scrape(self):
         pass
 
 
-class ParseBelgrade(Parser):
+class ParseBelgrade(SoupParser):
     def scrape(self):
         container = self.soup.find("div", class_="list-productions")
         year = -1
@@ -170,7 +174,7 @@ class ParseBelgrade(Parser):
                         )
 
 
-class ParseAlbany(Parser):
+class ParseAlbany(SoupParser):
     def scrape(self):
         container = self.soup.find("div", class_="query_block_content")
         for elem in container.children:
@@ -205,7 +209,7 @@ class ParseAlbany(Parser):
                     continue
 
 
-class ParseHippodrome(Parser):
+class ParseHippodrome(SoupParser):
     def scrape(self):
         while True:
             container = self.soup.find("ul", class_="main-events-list")
@@ -337,7 +341,7 @@ class ParseHippodrome(Parser):
                 return date(year, month + 1, day)
 
 
-class ParseSymphonyHall(Parser):
+class ParseSymphonyHall(SoupParser):
     def scrape(self):
         page = 1
         while True:
@@ -388,6 +392,101 @@ class ParseSymphonyHall(Parser):
                 break
 
 
+class SeleniumParser(DateParseMixin, abc.ABC):
+    def __init__(self, url, root_url):
+        self.url = url
+        self.root_url = root_url
+
+        options = Options()
+        options.headless = True
+        self.driver = webdriver.Firefox(options=options)
+
+    @abc.abstractmethod
+    def scrape(self):
+        pass
+
+    def parse(self):
+        self.driver.get(self.url)
+        html = self.driver.page_source
+        self.soup = BeautifulSoup(html, "lxml")
+
+        return self.scrape()
+
+
+class ParseResortsWorldArena(SeleniumParser):
+    SINGLE_DATE_RE = re.compile(r"(?P<day>\d+)\s+(?P<month>\w+)\s+(?P<year>20\d{2})")
+    JOINT_DATE_RE = re.compile(
+        r"(?P<start_day>\d+)\s*-\s*(?P<end_day>\d+)\s+(?P<month>\w+)\s+(?P<year>20\d{2})"
+    )
+
+    def scrape(self):
+        container = self.soup.find("div", id="home-results")
+        for event in container.find_all("div", class_="event-card"):
+            link_tag = event.find("a", class_="eventhref")
+            name = link_tag.find("span", class_="title").text
+            link_url = "".join([self.root_url, link_tag.attrs["href"]])
+            image_url = event.find("img", class_="lazy").attrs["src"]
+            date_text = event.find("span", class_="date").text
+
+            date = self.date_text_to_date(date_text)
+
+            if isinstance(date, DateRange):
+                yield Show(
+                    name=name,
+                    image_url=image_url,
+                    link_url=link_url,
+                    start_date=date.start,
+                    end_date=date.end,
+                )
+            else:
+                yield Show(
+                    name=name,
+                    image_url=image_url,
+                    link_url=link_url,
+                    start_date=date,
+                    end_date=date,
+                )
+
+    def date_text_to_date(self, date_text):
+        date_text = date_text.strip()
+        single_match = self.SINGLE_DATE_RE.match(date_text)
+        if single_match is not None:
+            day = int(single_match.group("day"))
+            year = int(single_match.group("year"))
+            month = self.month_text_to_int(single_match.group("month"))
+            return date(year, month, day)
+
+        joint_match = self.JOINT_DATE_RE.match(date_text)
+        if joint_match is not None:
+            start_day = int(joint_match.group("start_day"))
+            end_day = int(joint_match.group("end_day"))
+            year = int(joint_match.group("year"))
+            month = self.month_text_to_int(joint_match.group("month"))
+
+            start = date(year, month, start_day)
+            end = date(year, month, end_day)
+
+            return DateRange(start=start, end=end)
+
+        raise ValueError(f"Cannot parse {date_text}")
+
+    def month_text_to_int(self, textvalue):
+        return [
+            "January",
+            "February",
+            "March",
+            "April",
+            "May",
+            "June",
+            "July",
+            "August",
+            "September",
+            "October",
+            "November",
+            "December",
+        ].index(textvalue) + 1
+
+
 def upload_theatre(theatre, parsers):
     print(theatre)
     name = theatre["name"]
@@ -421,6 +520,7 @@ def main(filename, reset):
         "albany": ParseAlbany,
         "hippodrome": ParseHippodrome,
         "symphony-hall": ParseSymphonyHall,
+        "resortsworld-arena": ParseResortsWorldArena,
     }
 
     worker_fn = partial(upload_theatre, parsers=parsers)
