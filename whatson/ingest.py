@@ -397,9 +397,7 @@ class SeleniumParser(DateParseMixin, abc.ABC):
         self.url = url
         self.root_url = root_url
 
-        options = Options()
-        options.headless = True
-        self.driver = webdriver.Firefox(options=options)
+        self.driver = webdriver.PhantomJS()
 
     @abc.abstractmethod
     def scrape(self):
