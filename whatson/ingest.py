@@ -411,7 +411,7 @@ class SeleniumParser(DateParseMixin, abc.ABC):
 class ParseResortsWorldArena(SeleniumParser):
     SINGLE_DATE_RE = re.compile(r"(?P<day>\d+)\s+(?P<month>\w+)\s+(?P<year>20\d{2})")
     JOINT_DATE_RE = re.compile(
-        r"(?P<start_day>\d+)\s*-\s*(?P<end_day>\d+)\s+(?P<month>\w+)\s+(?P<year>20\d{2})"
+        r"(?P<start_day>\d+)\s*(?P<start_month>\w+)?\s*-\s*(?P<end_day>\d+)\s+(?P<end_month>\w+)\s+(?P<year>20\d{2})"
     )
 
     def scrape(self):
@@ -463,10 +463,14 @@ class ParseResortsWorldArena(SeleniumParser):
             start_day = int(joint_match.group("start_day"))
             end_day = int(joint_match.group("end_day"))
             year = int(joint_match.group("year"))
-            month = self.month_text_to_int(joint_match.group("month"))
+            end_month = self.month_text_to_int(joint_match.group("end_month"))
+            if joint_match.group("start_month"):
+                start_month = self.month_text_to_int(joint_match.group("start_month"))
+            else:
+                start_month = end_month
 
-            start = date(year, month, start_day)
-            end = date(year, month, end_day)
+            start = date(year, start_month, start_day)
+            end = date(year, end_month, end_day)
 
             return DateRange(start=start, end=end)
 

@@ -20,7 +20,7 @@ def results():
 
 
 def test_number_of_results(results):
-    assert len(results) == 30
+    assert len(results) == 31
 
 
 @pytest.mark.parametrize(
@@ -28,7 +28,7 @@ def test_number_of_results(results):
     [
         (0, date(2019, 10, 2), date(2019, 10, 6)),
         (4, date(2019, 10, 19), date(2019, 10, 19)),
-        (16, date(2020, 2, 14), date(2020, 2, 14)),
+        (16, date(2020, 1, 31), date(2020, 2, 1)),
     ],
 )
 def test_parse_dates(results, idx, start, end):
