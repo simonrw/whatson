@@ -1,4 +1,4 @@
-from typing import NamedTuple, Optional, TextIO, List, Dict, Any
+from typing import NamedTuple, Optional, TextIO, List
 import configparser
 
 URL = str
@@ -37,17 +37,17 @@ class TheatreDefinition(NamedTuple):
         return theatres
 
     @classmethod
-    def from_definition(cls, defn: Dict[str, Any]) -> "TheatreDefinition":
+    def from_definition(cls, defn: configparser.SectionProxy) -> "TheatreDefinition":
         return TheatreDefinition(
             name=defn.name,
-            active=True,
-            root_url="",
-            url="",
-            fetcher=None,
-            container_selector="",
-            link_selector="",
-            image_selector="",
-            title_selector="",
-            date_selector="",
-            next_selector=None,
+            active=defn.getboolean("active"),
+            root_url=defn["root-url"],
+            url=defn["url"],
+            fetcher=defn["fetcher"],
+            container_selector=defn["container-selector"],
+            link_selector=defn["link-selector"],
+            image_selector=defn["image-selector"],
+            title_selector=defn["title-selector"],
+            date_selector=defn["date-selector"],
+            next_selector=defn.get("next-selector"),
         )
