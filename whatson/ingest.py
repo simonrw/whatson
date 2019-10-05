@@ -3,7 +3,6 @@
 
 import abc
 import click
-import json
 from bs4 import BeautifulSoup  # type: ignore
 from bs4.element import Tag  # type: ignore
 import requests
@@ -11,6 +10,8 @@ import re
 from datetime import date, datetime
 from typing import NamedTuple
 from .models import Base, Show, session, engine
+from .theatredef import TheatreDefinition
+from .fetchers import Fetcher
 from sqlalchemy.exc import IntegrityError  # type: ignore
 from selenium import webdriver  # type: ignore
 
@@ -489,21 +490,14 @@ class ParseResortsWorldArena(SeleniumParser):
         ].index(textvalue) + 1
 
 
-def upload_theatre(theatre, parsers):
-    print(theatre)
-    name = theatre["name"]
-    url = theatre["url"]
-    root_url = theatre["root_url"]
-
-    parser = parsers.get(name)
-    if not parser:
-        raise ValueError("cannot find parser for {}".format(name))
-    parsed = parser(url, root_url).parse()
-
-    for item in parsed:
+def upload_theatre(theatre):
+    fetcher = Fetcher.create(theatre.fetcher)
+    html = fetcher.fetch(theatre.url)
+    parser = theatre.to_parser()
+    for item in parser.parse(html):
+        item.theatre = theatre.name
         try:
             with session() as sess:
-                item.theatre = name
                 sess.add(item)
         except IntegrityError:
             continue
@@ -517,16 +511,9 @@ def main(filename, reset):
         Base.metadata.drop_all(bind=engine)
         Base.metadata.create_all(bind=engine)
 
-    parsers = {
-        "belgrade": ParseBelgrade,
-        "albany": ParseAlbany,
-        "hippodrome": ParseHippodrome,
-        "symphony-hall": ParseSymphonyHall,
-        "resortsworld-arena": ParseResortsWorldArena,
-    }
-
     with open(filename) as infile:
-        config = json.load(infile)
+        theatres = TheatreDefinition.parse_config(infile)
 
-    for theatre in config["theatres"]:
-        upload_theatre(theatre, parsers=parsers)
+    for theatre in theatres:
+        if theatre.active:
+            upload_theatre(theatre)

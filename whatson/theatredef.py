@@ -1,5 +1,6 @@
 from typing import NamedTuple, Optional, TextIO, List
 import configparser
+from .parsers import Parser
 
 URL = str
 CSSSelector = str
@@ -17,6 +18,9 @@ class TheatreDefinition(NamedTuple):
     root_url: URL
     url: URL
     fetcher: Fetcher
+
+    # Whether to treat any links found as relative or not. Defaults to False.
+    link_relative: bool
 
     # Selectors
     container_selector: CSSSelector
@@ -43,6 +47,7 @@ class TheatreDefinition(NamedTuple):
             active=defn.getboolean("active"),
             root_url=defn["root-url"],
             url=defn["url"],
+            link_relative=defn.getboolean("link-relative", fallback=False),
             fetcher=defn["fetcher"],
             container_selector=defn["container-selector"],
             link_selector=defn["link-selector"],
@@ -51,3 +56,6 @@ class TheatreDefinition(NamedTuple):
             date_selector=defn["date-selector"],
             next_selector=defn.get("next-selector"),
         )
+
+    def to_parser(self) -> Parser:
+        return Parser(self)
