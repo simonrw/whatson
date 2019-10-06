@@ -1,16 +1,22 @@
-import pytest
-import vcr
-from whatson.ingest import ParseAlbany
+import pytest  # type: ignore
+import vcr  # type: ignore
+from whatson.fetchers import Fetcher
 from datetime import date
 
 
 @pytest.fixture(scope="session")
 @vcr.use_cassette("fixtures/test_parse_albany.yaml")
-def results():
-    root_url = "https://albanytheatre.co.uk/"
-    url = "https://albanytheatre.co.uk/whats-on/"
+def results(get_theatre):
+    theatre = get_theatre("albany")
+    fetcher = Fetcher.create(theatre.fetcher)
+    html = fetcher.fetch(theatre.url)
+    parser = theatre.to_parser()
 
-    return list(ParseAlbany(url, root_url).parse())
+    shows = []
+    for item in parser.parse(html):
+        item.theatre = theatre.name
+        shows.append(item)
+    return shows
 
 
 def test_number_of_results(results):
