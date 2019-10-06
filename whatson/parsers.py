@@ -1,5 +1,6 @@
 from typing import Any, Iterable, NamedTuple
 from .models import Show
+from .fetchers import Fetcher
 from bs4 import BeautifulSoup
 from bs4.element import Tag
 from datetime import date
@@ -19,46 +20,58 @@ class Parser(object):
     def __init__(self, definition: "TheatreDefinition") -> None:
         self._defn = definition
 
-    def parse(self, html: str) -> Iterable[Show]:
-        soup = BeautifulSoup(html, "lxml")
-        container = soup.select_one(self._defn.container_selector)
+    def parse(self, html: str, fetcher: Fetcher) -> Iterable[Show]:
+        while True:
+            soup = BeautifulSoup(html, "lxml")
+            container = soup.select_one(self._defn.container_selector)
 
-        for elem in container.children:
-            if not isinstance(elem, Tag):
-                continue
+            for elem in container.children:
+                if not isinstance(elem, Tag):
+                    continue
 
-            try:
-                title = elem.select_one(self._defn.title_selector).text
+                try:
+                    title = elem.select_one(self._defn.title_selector).text
 
-                image_url = self._relative_or_absolute_link(
-                    elem.select_one(self._defn.image_selector).attrs["src"]
-                )
-
-                link_url = self._relative_or_absolute_link(
-                    elem.select_one(self._defn.link_selector).attrs["href"]
-                )
-
-                date_str = elem.select_one(self._defn.date_selector).text.lower()
-                date = self._date_text_to_date(date_str)
-
-                if isinstance(date, DateRange):
-                    yield Show(
-                        name=title,
-                        image_url=image_url,
-                        link_url=link_url,
-                        start_date=date.start,
-                        end_date=date.end,
+                    image_url = self._relative_or_absolute_link(
+                        elem.select_one(self._defn.image_selector).attrs["src"]
                     )
-                else:
-                    yield Show(
-                        name=title,
-                        image_url=image_url,
-                        link_url=link_url,
-                        start_date=date,
-                        end_date=date,
+
+                    link_url = self._relative_or_absolute_link(
+                        elem.select_one(self._defn.link_selector).attrs["href"]
                     )
-            except AttributeError:
-                continue
+
+                    date_str = elem.select_one(self._defn.date_selector).text.lower()
+                    date = self._date_text_to_date(date_str)
+
+                    if isinstance(date, DateRange):
+                        yield Show(
+                            name=title,
+                            image_url=image_url,
+                            link_url=link_url,
+                            start_date=date.start,
+                            end_date=date.end,
+                        )
+                    else:
+                        yield Show(
+                            name=title,
+                            image_url=image_url,
+                            link_url=link_url,
+                            start_date=date,
+                            end_date=date,
+                        )
+                except AttributeError:
+                    continue
+
+            if self._defn.next_selector is None:
+                # no pagination so just quit
+                return
+            else:
+                next_link = soup.select_one(self._defn.next_selector)
+                if not next_link:
+                    return
+                next_url = next_link.attrs["href"]
+                html = fetcher.fetch(next_url)
+
 
     def _relative_or_absolute_link(self, link: str) -> str:
         if self._defn.link_relative:

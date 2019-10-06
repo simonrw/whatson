@@ -13,7 +13,7 @@ def results(get_theatre):
     parser = theatre.to_parser()
 
     shows = []
-    for item in parser.parse(html):
+    for item in parser.parse(html, fetcher):
         item.theatre = theatre.name
         shows.append(item)
     return shows
