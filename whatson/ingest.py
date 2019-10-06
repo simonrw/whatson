@@ -98,6 +98,7 @@ class DateParseMixin(object):
 
 class SoupParser(DateParseMixin, abc.ABC):
     def __init__(self, url, root_url):
+        raise NotImplementedError()
         self.url = url
         self.root_url = root_url
 
@@ -392,6 +393,7 @@ class ParseSymphonyHall(SoupParser):
 
 class SeleniumParser(DateParseMixin, abc.ABC):
     def __init__(self, url, root_url):
+        raise NotImplementedError()
         self.url = url
         self.root_url = root_url
 
