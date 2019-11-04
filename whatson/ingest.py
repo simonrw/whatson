@@ -495,8 +495,8 @@ class ParseResortsWorldArena(SeleniumParser):
 
 
 def upload_theatre(theatre, custom_parsers):
+    name = theatre.name
     if theatre.name in custom_parsers:
-        name = theatre.name
         url = theatre.url
         root_url = theatre.root_url
 
@@ -545,5 +545,10 @@ def main(filename, reset):
     }
 
     for theatre in theatres:
+        print(theatre.name)
         if theatre.active:
-            upload_theatre(theatre, custom_parsers=custom_parsers)
+            try:
+                upload_theatre(theatre, custom_parsers=custom_parsers)
+            except Exception as e:
+                print(e)
+                continue
