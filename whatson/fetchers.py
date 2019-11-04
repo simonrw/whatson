@@ -2,6 +2,7 @@ from typing import Dict
 import requests
 import abc
 from selenium import webdriver  # type: ignore
+from selenium.webdriver.firefox.options import Options
 
 
 class Fetcher(abc.ABC):
@@ -21,7 +22,9 @@ class SeleniumFetcher(Fetcher):
     def __init__(self):
         super().__init__()
 
-        self.driver = webdriver.PhantomJS()
+        options = Options()
+        options.headless = True
+        self.driver = webdriver.Firefox(options=options)
 
     def fetch(self, url: str) -> str:
         self.driver.get(url)
