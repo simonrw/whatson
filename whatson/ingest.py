@@ -546,4 +546,4 @@ def main(filename, reset):
 
     for theatre in theatres:
         if theatre.active:
-            upload_theatre(theatre, custom_parsers=parsers)
+            upload_theatre(theatre, custom_parsers=custom_parsers)
