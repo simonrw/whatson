@@ -8,3 +8,4 @@ elm-stuff
 *driver.log
 dist
 .tox
+.vim
