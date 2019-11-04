@@ -11,6 +11,7 @@ import re
 from datetime import date, datetime
 from typing import NamedTuple
 from .models import Base, Show, session, engine
+from .theatredef import TheatreDefinition
 from sqlalchemy.exc import IntegrityError  # type: ignore
 from selenium import webdriver  # type: ignore
 
@@ -493,24 +494,35 @@ class ParseResortsWorldArena(SeleniumParser):
         ].index(textvalue) + 1
 
 
-def upload_theatre(theatre, parsers):
-    print(theatre)
-    name = theatre["name"]
-    url = theatre["url"]
-    root_url = theatre["root_url"]
+def upload_theatre(theatre, custom_parsers):
+    if theatre.name in custom_parsers:
+        name = theatre.name
+        url = theatre.url
+        root_url = theatre.root_url
 
-    parser = parsers.get(name)
-    if not parser:
-        raise ValueError("cannot find parser for {}".format(name))
-    parsed = parser(url, root_url).parse()
+        parser = custom_parsers.get(name)
+        if not parser:
+            raise ValueError("cannot find parser for {}".format(name))
+        parsed = parser(url, root_url).parse()
 
-    for item in parsed:
-        try:
-            with session() as sess:
-                item.theatre = name
-                sess.add(item)
-        except IntegrityError:
-            continue
+        for item in parsed:
+            try:
+                with session() as sess:
+                    item.theatre = name
+                    sess.add(item)
+            except IntegrityError:
+                continue
+    else:
+        fetcher = Fetcher.create(theatre.fetcher)
+        html = fetcher.fetch(theatre.url)
+        parser = theatre.to_parser()
+        for item in parser.parse(html):
+            item.theatre = theatre.name
+            try:
+                with session() as sess:
+                    sess.add(item)
+            except IntegrityError:
+                continue
 
 
 @click.command()
@@ -521,7 +533,10 @@ def main(filename, reset):
         Base.metadata.drop_all(bind=engine)
         Base.metadata.create_all(bind=engine)
 
-    parsers = {
+    with open(filename) as infile:
+        theatres = TheatreDefinition.parse_config(infile)
+
+    custom_parsers = {
         "belgrade": ParseBelgrade,
         "albany": ParseAlbany,
         "hippodrome": ParseHippodrome,
@@ -529,8 +544,6 @@ def main(filename, reset):
         "resortsworld-arena": ParseResortsWorldArena,
     }
 
-    with open(filename) as infile:
-        config = json.load(infile)
-
-    for theatre in config["theatres"]:
-        upload_theatre(theatre, parsers=parsers)
+    for theatre in theatres:
+        if theatre.active:
+            upload_theatre(theatre, custom_parsers=parsers)
