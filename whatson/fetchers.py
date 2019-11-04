@@ -3,13 +3,18 @@ import requests
 import abc
 from selenium import webdriver  # type: ignore
 from selenium.webdriver.firefox.options import Options
+from requests_html import HTMLSession
 
 
 class Fetcher(abc.ABC):
     @classmethod
     def create(cls, name: str) -> "Fetcher":
         try:
-            return {"requests": RequestsFetcher, "selenium": SeleniumFetcher}[name]()
+            return {
+                "requests": RequestsFetcher,
+                "selenium": SeleniumFetcher,
+                "requests-html": RequestsHTMLFetcher,
+            }[name]()
         except KeyError:
             raise ValueError("no fetcher configured: {}".format(name))
 
@@ -29,6 +34,17 @@ class SeleniumFetcher(Fetcher):
     def fetch(self, url: str) -> str:
         self.driver.get(url)
         return self.driver.page_source
+
+
+class RequestsHTMLFetcher(Fetcher):
+    def __init__(self):
+        super().__init__()
+        self.session = HTMLSession()
+
+    def fetch(self, url: str) -> str:
+        r = self.session.get(url)
+        r.html.render()
+        return r.text
 
 
 SESSION = requests.Session()

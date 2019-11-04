@@ -24,6 +24,7 @@ class Parser(object):
         while True:
             soup = BeautifulSoup(html, "lxml")
             container = soup.select_one(self._defn.container_selector)
+            print(container)
             for elem in container.children:
                 if not isinstance(elem, Tag):
                     continue
