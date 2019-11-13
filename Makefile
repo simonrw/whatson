@@ -1,5 +1,9 @@
 all: dist/server
 
+.PHONY: runserver
+runserver: dist/server
+	$<
+
 dist/server: cmd/server/main.go
 	go build -o $@ $<
 

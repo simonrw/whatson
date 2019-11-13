@@ -1,6 +1,8 @@
 package main
 
 import (
+	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
 
@@ -8,11 +10,22 @@ import (
 )
 
 type theatreConfig struct {
-	name string
+	Name    string `toml:"name"`
+	Active  bool   `toml:"active"`
+	RootURL string `toml:"root-url"`
+	URL     string `toml:"url"`
 }
 
 type whatsonConfig struct {
-	theatres []*theatreConfig `toml:"theatre"`
+	Theatres []*theatreConfig `toml:"theatre"`
+}
+
+func (w whatsonConfig) String() string {
+	b, err := json.Marshal(w)
+	if err != nil {
+		return fmt.Sprintf("error")
+	}
+	return string(b)
 }
 
 func main() {
@@ -27,4 +40,6 @@ func main() {
 	if _, err = toml.Decode(string(dat), &currentConfig); err != nil {
 		log.Fatal(err)
 	}
+
+	fmt.Println(currentConfig)
 }
