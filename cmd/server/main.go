@@ -1,12 +1,13 @@
 package main
 
 import (
-	"fmt"
 	"io/ioutil"
 	"log"
 
 	"github.com/BurntSushi/toml"
 	"github.com/mindriot101/whatson/internal/config"
+	"github.com/mindriot101/whatson/internal/fetchers"
+	"github.com/mindriot101/whatson/internal/parsers"
 )
 
 func main() {
@@ -22,5 +23,15 @@ func main() {
 		log.Fatal(err)
 	}
 
-	fmt.Println(currentConfig)
+	for _, theatre := range currentConfig.Theatres {
+		fetcher, err := fetchers.GetFetcher(theatre.Fetcher)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		p := parsers.NewParser(theatre, *fetcher)
+		// TODO: include the database in this
+		// TODO: parallelise
+		p.Ingest()
+	}
 }

@@ -1,10 +1,10 @@
-GOFILES := $(wildcard common/*/*.go)
+GOFILES := $(wildcard internal/*/*.go)
 
 all: dist/server
 
 .PHONY: runserver
 runserver: dist/server
-	$<
+	@$<
 
 dist/server: cmd/server/main.go ${GOFILES}
 	go build -o $@ $<

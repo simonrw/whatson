@@ -1,4 +1,4 @@
-package fetcher
+package fetchers
 
 import (
 	"io/ioutil"
@@ -14,6 +14,7 @@ func NewStdlibFetcher() StdlibFetcher {
 }
 
 func (f StdlibFetcher) Fetch(url string) (string, error) {
+	// TODO: use request with context
 	r, err := http.Get(url)
 	if err != nil {
 		log.Printf("error fetching http response from %s\n", url)
