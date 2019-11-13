@@ -10,6 +10,7 @@ type TheatreConfig struct {
 	Active            bool   `toml:"active"`
 	RootURL           string `toml:"root-url"`
 	URL               string `toml:"url"`
+	Fetcher           string `toml:"fetcher"`
 	ContainerSelector string `toml:"container-selector"`
 	LinkSelector      string `toml:"link-selector"`
 	ImageSelector     string `toml:"image-selector"`
