@@ -10,3 +10,7 @@ dist/server: cmd/server/main.go
 .PHONY: clean
 clean:
 	@rm -rf dist
+
+.PHONY: test
+test:
+	go test
