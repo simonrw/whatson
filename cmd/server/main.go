@@ -1,32 +1,13 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
 
 	"github.com/BurntSushi/toml"
+	"github.com/mindriot101/whatson/internal/config"
 )
-
-type theatreConfig struct {
-	Name    string `toml:"name"`
-	Active  bool   `toml:"active"`
-	RootURL string `toml:"root-url"`
-	URL     string `toml:"url"`
-}
-
-type whatsonConfig struct {
-	Theatres []*theatreConfig `toml:"theatre"`
-}
-
-func (w whatsonConfig) String() string {
-	b, err := json.Marshal(w)
-	if err != nil {
-		return fmt.Sprintf("error")
-	}
-	return string(b)
-}
 
 func main() {
 	// TODO: put this in command line options
@@ -36,7 +17,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	var currentConfig whatsonConfig
+	var currentConfig config.WhatsonConfig
 	if _, err = toml.Decode(string(dat), &currentConfig); err != nil {
 		log.Fatal(err)
 	}
