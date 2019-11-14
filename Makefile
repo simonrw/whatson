@@ -1,12 +1,16 @@
 GOFILES := $(wildcard internal/*/*.go)
 
-all: dist/server
+all: dist/ingest
 
 .PHONY: runserver
 runserver: dist/server
 	@$<
 
-dist/server: cmd/server/main.go ${GOFILES}
+.PHONY: runingest
+runingest: dist/ingest
+	@$<
+
+dist/%: cmd/%/main.go ${GOFILES}
 	go build -o $@ $<
 
 .PHONY: clean
