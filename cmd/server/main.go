@@ -7,7 +7,7 @@ import (
 	"github.com/BurntSushi/toml"
 	"github.com/mindriot101/whatson/internal/config"
 	"github.com/mindriot101/whatson/internal/fetchers"
-	"github.com/mindriot101/whatson/internal/parsers"
+	"github.com/mindriot101/whatson/internal/scrapers"
 )
 
 func main() {
@@ -29,9 +29,9 @@ func main() {
 			log.Fatal(err)
 		}
 
-		p := parsers.NewParser(theatre, *fetcher)
+		s := scrapers.NewScraper(theatre, *fetcher)
 		// TODO: include the database in this
 		// TODO: parallelise
-		p.Ingest()
+		s.Ingest()
 	}
 }

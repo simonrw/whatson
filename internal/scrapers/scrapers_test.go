@@ -1,4 +1,4 @@
-package parsers
+package scrapers
 
 import (
 	"fmt"
@@ -30,6 +30,6 @@ func TestAlbany(t *testing.T) {
 
 	f := fetchers.NewStdlibFetcher()
 
-	parser := NewParser(&theatreConfig, f)
-	_ = parser
+	scraper := NewScraper(&theatreConfig, f)
+	_ = scraper
 }
