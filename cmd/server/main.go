@@ -50,7 +50,7 @@ func main() {
 	fs := http.FileServer(http.Dir("whatson/static"))
 	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", fs))
 
-	// TODO: Set up API endpoints
+	// Set up API endpoints
 	r.HandleFunc("/api/shows", func(w http.ResponseWriter, r *http.Request) {
 		log.Println("got request")
 
@@ -92,12 +92,12 @@ func main() {
 	// Run the server
 	srv := &http.Server{
 		Handler:      r,
-		Addr:         "127.0.0.1:8080",
+		Addr:         "127.0.0.1:5000",
 		WriteTimeout: 15 * time.Second,
 		ReadTimeout:  15 * time.Second,
 	}
 
-	log.Println("listening on :8080")
+	log.Println("listening on :5000")
 	err = srv.ListenAndServe()
 	if err != nil {
 		log.Fatalf("server failed: %v\n", err)

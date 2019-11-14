@@ -28,14 +28,14 @@ func (p PostgresDatabase) ShowsForMonth(q types.MonthQuery) (*types.Shows, error
 	defer rows.Close()
 
 	shows := []types.Show{}
-	var show types.Show
+	var show types.RawShow
 	for rows.Next() {
 		err := rows.Scan(&show.Name, &show.Theatre, &show.ImageURL, &show.LinkURL, &show.StartDate, &show.EndDate)
 		if err != nil {
 			return nil, err
 		}
 
-		shows = append(shows, show)
+		shows = append(shows, show.ToShow())
 	}
 
 	return &types.Shows{Shows: shows}, nil

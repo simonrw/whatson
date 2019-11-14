@@ -86,6 +86,7 @@ type alias Model =
     , sortSelection : SortSelection
     , theatres : Set String
     , filterTheatre : Maybe String
+    , errorString : Maybe String
     }
 
 
@@ -97,6 +98,7 @@ initModel =
     , sortSelection = Date
     , theatres = Set.empty
     , filterTheatre = Nothing
+    , errorString = Nothing
     }
 
 
@@ -149,6 +151,25 @@ type Msg
     | SelectedTheatre (Maybe String)
 
 
+httpErrorToString : Http.Error -> String
+httpErrorToString e =
+    case e of
+        Http.Timeout ->
+            "Timeout exceeded"
+
+        Http.NetworkError ->
+            "Network error"
+
+        Http.BadUrl url ->
+            "Malformed url: " ++ url
+
+        Http.BadStatus s ->
+            "Bad status: " ++ String.fromInt s
+
+        Http.BadBody b ->
+            "bad body: " ++ b
+
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
@@ -158,7 +179,7 @@ update msg model =
                     ( { model | availableMonths = List.sortWith compareDateElements months }, Cmd.none )
 
                 Err e ->
-                    ( model, Cmd.none )
+                    ( { model | errorString = Just <| httpErrorToString e }, Cmd.none )
 
         GotShows response ->
             case response of
@@ -171,7 +192,7 @@ update msg model =
                     ( { model | shows = shows, theatres = theatres }, Cmd.none )
 
                 Err e ->
-                    ( model, Cmd.none )
+                    ( { model | errorString = Just <| httpErrorToString e }, Cmd.none )
 
         SelectedMonth selectedMonth ->
             String.toInt selectedMonth
@@ -237,41 +258,42 @@ showDecoder =
 
 rawDateDecoder : D.Decoder RawDate
 rawDateDecoder =
-    D.string
-        |> D.andThen
-            (\s ->
-                let
-                    parts =
-                        s
-                            |> String.split "-"
-                            |> List.map String.toInt
-                            |> List.map (Maybe.withDefault -1)
-
-                    date =
-                        case parts of
-                            [ year, month, day ] ->
-                                RawDate year month day
-
-                            _ ->
-                                RawDate 0 0 0
-                in
-                D.succeed date
-            )
+    D.map3 RawDate
+        (D.field "year" D.int)
+        (D.field "month" D.int)
+        (D.field "day" D.int)
 
 
 view : Model -> Html Msg
 view model =
-    div [ class "text-white p-4 m-4 flex-col md:text-2xl lg:text-lg" ]
-        [ div [ class "flex-shrink-0" ]
-            [ h1 [ class "text-3xl md:text-5xl font-semibold mb-8" ]
-                [ text "What's on?"
+    let
+        container inner =
+            div [ class "text-white p-4 m-4 flex-col md:text-2xl lg:text-lg" ]
+             inner 
+    in
+    case model.errorString of
+        Nothing ->
+            container
+                [ div [ class "flex-shrink-0" ]
+                    [ h1 [ class "text-3xl md:text-5xl font-semibold mb-8" ]
+                        [ text "What's on?"
+                        ]
+                    , modelSelect model
+                    ]
+                , div []
+                    [ viewShows model
+                    ]
                 ]
-            , modelSelect model
+
+        Just s ->
+            container
+            [ div [] [
+                h1 [] [ text "Error" ]
+                , p [] [ text s ]
             ]
-        , div []
-            [ viewShows model
             ]
-        ]
+
+
 
 
 viewShows : Model -> Html Msg
