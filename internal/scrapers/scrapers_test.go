@@ -7,13 +7,19 @@ import (
 	"testing"
 
 	"github.com/mindriot101/whatson/internal/config"
-	"github.com/mindriot101/whatson/internal/fetchers"
 )
 
 type handler struct{}
 
 func (handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "ok")
+}
+
+// Mock fetcher implementation that returns known HTML content
+type AlbanyFetcher struct{}
+
+func (AlbanyFetcher) Fetch(url string) (string, error) {
+	return "", nil
 }
 
 func TestAlbany(t *testing.T) {
@@ -28,8 +34,7 @@ func TestAlbany(t *testing.T) {
 		URL:     server.URL,
 	}
 
-	f := fetchers.NewStdlibFetcher()
+	f := AlbanyFetcher{}
 
 	scraper := NewScraper(&theatreConfig, f)
-	_ = scraper
 }

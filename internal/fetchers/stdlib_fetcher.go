@@ -1,6 +1,7 @@
 package fetchers
 
 import (
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -21,6 +22,11 @@ func (f StdlibFetcher) Fetch(url string) (string, error) {
 		return "", err
 	}
 	defer r.Body.Close()
+
+	if r.StatusCode != 200 {
+		log.Printf("http status code: %d\n", r.StatusCode)
+		return "", fmt.Errorf("http status code %d for url %s\n", r.StatusCode, url)
+	}
 
 	b, err := ioutil.ReadAll(r.Body)
 	if err != nil {
