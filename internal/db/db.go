@@ -8,7 +8,8 @@ import (
 )
 
 type Database interface {
-	ShowsForMonth(types.MonthQuery) ([]types.Show, error)
+	ShowsForMonth(types.MonthQuery) (*types.Shows, error)
+	Months() (*types.Months, error)
 	Close()
 }
 

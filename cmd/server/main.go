@@ -74,6 +74,21 @@ func main() {
 
 	}).Methods("POST")
 
+	r.HandleFunc("/api/months", func(w http.ResponseWriter, r *http.Request) {
+		log.Println("got request for months")
+
+		months, err := db.Months()
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		if err = json.NewEncoder(w).Encode(months); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+	})
+
 	// Run the server
 	srv := &http.Server{
 		Handler:      r,
