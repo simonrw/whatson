@@ -1,18 +1,28 @@
 package main
 
 import (
+	"encoding/json"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"text/template"
 	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
+	"github.com/mindriot101/whatson/internal/db"
+	"github.com/mindriot101/whatson/internal/types"
 )
 
 func main() {
 	err := godotenv.Load()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Set up the database
+	db, err := db.Connect("postgres", os.Getenv("DATABASE_CONN"))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -41,6 +51,28 @@ func main() {
 	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", fs))
 
 	// TODO: Set up API endpoints
+	r.HandleFunc("/api/shows", func(w http.ResponseWriter, r *http.Request) {
+		log.Println("got request")
+
+		var q types.MonthQuery
+		err := json.NewDecoder(r.Body).Decode(&q)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		shows, err := db.ShowsForMonth(q)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		if err = json.NewEncoder(w).Encode(shows); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+	}).Methods("POST")
 
 	// Run the server
 	srv := &http.Server{

@@ -38,6 +38,7 @@ func main() {
 		s := scrapers.NewScraper(theatre, *fetcher)
 		// TODO: include the database in this
 		// TODO: parallelise
-		s.Ingest()
+		// s.Ingest()
+		_ = s
 	}
 }

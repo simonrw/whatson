@@ -1,6 +1,6 @@
 GOFILES := $(wildcard internal/*/*.go)
 
-all: dist/ingest
+all: dist/ingest dist/server
 
 .PHONY: runserver
 runserver: dist/server
@@ -20,3 +20,7 @@ clean:
 .PHONY: test
 test:
 	go test ./...
+
+.PHONY: lint
+lint:
+	golint ./...

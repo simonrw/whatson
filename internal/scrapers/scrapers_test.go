@@ -37,4 +37,5 @@ func TestAlbany(t *testing.T) {
 	f := AlbanyFetcher{}
 
 	scraper := NewScraper(&theatreConfig, f)
+	_ = scraper
 }
