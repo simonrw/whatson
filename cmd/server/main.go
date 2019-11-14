@@ -3,35 +3,56 @@ package main
 import (
 	"io/ioutil"
 	"log"
+	"net/http"
+	"text/template"
+	"time"
 
-	"github.com/BurntSushi/toml"
-	"github.com/mindriot101/whatson/internal/config"
-	"github.com/mindriot101/whatson/internal/fetchers"
-	"github.com/mindriot101/whatson/internal/scrapers"
+	"github.com/gorilla/mux"
+	"github.com/joho/godotenv"
 )
 
 func main() {
-	// TODO: put this in command line options
-	configFilename := "config.toml"
-	dat, err := ioutil.ReadFile(configFilename)
+	err := godotenv.Load()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	var currentConfig config.WhatsonConfig
-	if _, err = toml.Decode(string(dat), &currentConfig); err != nil {
-		log.Fatal(err)
+	// Load the template from disk
+	templateFilename := "whatson/templates/index.html"
+	s, err := ioutil.ReadFile(templateFilename)
+	if err != nil {
+		log.Fatalf("error loading template from %s\n", templateFilename)
 	}
 
-	for _, theatre := range currentConfig.Theatres {
-		fetcher, err := fetchers.GetFetcher(theatre.Fetcher)
-		if err != nil {
-			log.Fatal(err)
-		}
+	t, err := template.New("index").Parse(string(s))
+	if err != nil {
+		log.Fatalf("error parsing template %s\n", templateFilename)
+	}
 
-		s := scrapers.NewScraper(theatre, *fetcher)
-		// TODO: include the database in this
-		// TODO: parallelise
-		s.Ingest()
+	// Set up the HTTP server
+	r := mux.NewRouter()
+	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		log.Println("got request")
+		t.Execute(w, nil)
+	})
+
+	// Set up static file handling
+	fs := http.FileServer(http.Dir("whatson/static"))
+	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", fs))
+
+	// TODO: Set up API endpoints
+
+	// Run the server
+	srv := &http.Server{
+		Handler:      r,
+		Addr:         "127.0.0.1:8080",
+		WriteTimeout: 15 * time.Second,
+		ReadTimeout:  15 * time.Second,
+	}
+
+	log.Println("listening on :8080")
+	err = srv.ListenAndServe()
+	if err != nil {
+		log.Fatalf("server failed: %v\n", err)
 	}
 }
