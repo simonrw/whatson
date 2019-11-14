@@ -88,6 +88,15 @@ func (p PostgresDatabase) Months() (*types.Months, error) {
 	return &types.Months{Months: months}, nil
 }
 
+func (p PostgresDatabase) Upload(types.Show) error {
+	// TODO
+	return nil
+}
+
 func (p PostgresDatabase) Close() {
 	p.db.Close()
 }
+
+// Finally check that the postgres database implements the interface
+
+var _ Database = PostgresDatabase{}

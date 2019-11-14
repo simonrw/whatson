@@ -17,6 +17,7 @@ type TheatreConfig struct {
 	TitleSelector     string `toml:"title-selector"`
 	DateSelector      string `toml:"date-selector"`
 	LinkRelative      bool   `toml:"link-relative"`
+	NextSelector      string `toml:"next-selector"`
 }
 
 type WhatsonConfig struct {

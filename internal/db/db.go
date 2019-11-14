@@ -10,6 +10,7 @@ import (
 type Database interface {
 	ShowsForMonth(types.MonthQuery) (*types.Shows, error)
 	Months() (*types.Months, error)
+	Upload(types.Show) error
 	Close()
 }
 
