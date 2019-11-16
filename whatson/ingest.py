@@ -122,57 +122,6 @@ class SoupParser(DateParseMixin, abc.ABC):
         pass
 
 
-class ParseSymphonyHall(SoupParser):
-    def scrape(self):
-        page = 1
-        while True:
-            container = self.soup.find("ul", class_="grid cf")
-            assert len(container.contents) <= 16
-            for elem in container.contents:
-                title = elem.find("h3").text
-
-                link_url = elem.find("a", class_="event-block").attrs["href"]
-                image_url = (
-                    elem.find("img", class_="o-image__full")
-                    .attrs["data-srcset"]
-                    .split()[0]
-                )
-
-                date_container = elem.find("span", class_="event-block__time")
-                times = date_container.find_all("time")
-                if len(times) == 1:
-                    # Simple case, only a single time available
-                    start_time = datetime.fromisoformat(
-                        times[0].attrs["datetime"]
-                    ).date()
-                    end_time = start_time
-                elif len(times) == 2:
-                    # We have start time and end time
-                    assert times[0].attrs["itemprop"] == "startDate"
-                    assert times[1].attrs["itemprop"] == "endDate"
-
-                    start_time = datetime.fromisoformat(
-                        times[0].attrs["datetime"]
-                    ).date()
-                    end_time = datetime.fromisoformat(times[1].attrs["datetime"]).date()
-
-                yield Show(
-                    name=title,
-                    image_url=image_url,
-                    link_url=link_url,
-                    start_date=start_time,
-                    end_date=end_time,
-                )
-
-            next_link = self.soup.find("a", class_="pagination__link--next")
-            if next_link and "disabled" not in next_link.attrs["class"]:
-                next_url = next_link.attrs["href"]
-                self.next_page(next_url)
-                page += 1
-            else:
-                break
-
-
 class SeleniumParser(DateParseMixin, abc.ABC):
     def __init__(self, url, root_url):
         self.url = url

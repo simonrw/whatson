@@ -1,6 +1,6 @@
 import pytest
 import vcr
-from whatson.ingest import ParseSymphonyHall
+from whatson.parsers import ParseSymphonyHall
 from datetime import date
 
 
