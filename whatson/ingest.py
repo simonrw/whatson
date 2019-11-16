@@ -12,6 +12,7 @@ from datetime import date, datetime
 from typing import NamedTuple
 from .models import Base, Show, session, engine
 from .theatredef import TheatreDefinition
+from .parsers import PARSERS
 from sqlalchemy.exc import IntegrityError  # type: ignore
 from selenium import webdriver  # type: ignore
 
@@ -141,15 +142,13 @@ class SeleniumParser(DateParseMixin, abc.ABC):
         return self.scrape()
 
 
-def upload_theatre(theatre, custom_parsers):
+def upload_theatre(theatre, parsers):
     name = theatre.name
-    if theatre.name in custom_parsers:
+    if name in parsers:
         url = theatre.url
         root_url = theatre.root_url
 
-        parser = custom_parsers.get(name)
-        if not parser:
-            raise ValueError("cannot find parser for {}".format(name))
+        parser = parsers[name]
         parsed = parser(url, root_url).parse()
 
         for item in parsed:
@@ -160,16 +159,7 @@ def upload_theatre(theatre, custom_parsers):
             except IntegrityError:
                 continue
     else:
-        fetcher = Fetcher.create(theatre.fetcher)
-        html = fetcher.fetch(theatre.url)
-        parser = theatre.to_parser()
-        for item in parser.parse(html):
-            item.theatre = theatre.name
-            try:
-                with session() as sess:
-                    sess.add(item)
-            except IntegrityError:
-                continue
+        raise ValueError("cannot find parser for theatre {}".format(name))
 
 
 @click.command()
@@ -183,19 +173,9 @@ def main(filename, reset):
     with open(filename) as infile:
         theatres = TheatreDefinition.parse_config(infile)
 
-    custom_parsers = {
-        "belgrade": ParseBelgrade,
-        "albany": ParseAlbany,
-        "hippodrome": ParseHippodrome,
-        "symphony-hall": ParseSymphonyHall,
-        "resortsworld-arena": ParseResortsWorldArena,
-    }
+    parsers = PARSERS
 
     for theatre in theatres:
         print(theatre.name)
         if theatre.active:
-            try:
-                upload_theatre(theatre, custom_parsers=custom_parsers)
-            except Exception as e:
-                print(e)
-                continue
+            upload_theatre(theatre, parsers)

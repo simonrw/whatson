@@ -3,8 +3,6 @@ import configparser
 # from .parsers import Parser, custom as CustomParsers
 
 URL = str
-CSSSelector = str
-Fetcher = str
 
 
 class TheatreDefinition(NamedTuple):
@@ -17,19 +15,6 @@ class TheatreDefinition(NamedTuple):
     active: bool
     root_url: URL
     url: URL
-    fetcher: Fetcher
-    custom_class: Optional[str]
-
-    # Whether to treat any links found as relative or not. Defaults to False.
-    link_relative: bool
-
-    # Selectors
-    container_selector: CSSSelector
-    link_selector: CSSSelector
-    image_selector: CSSSelector
-    title_selector: CSSSelector
-    date_selector: CSSSelector
-    next_selector: Optional[CSSSelector]
 
     @classmethod
     def parse_config(cls, fptr: TextIO) -> List["TheatreDefinition"]:
@@ -48,13 +33,4 @@ class TheatreDefinition(NamedTuple):
             active=defn.getboolean("active"),
             root_url=defn["root-url"],
             url=defn["url"],
-            link_relative=defn.getboolean("link-relative", fallback=False),
-            fetcher=defn["fetcher"],
-            custom_class=defn.get("custom-class", None),
-            container_selector=defn["container-selector"],
-            link_selector=defn["link-selector"],
-            image_selector=defn["image-selector"],
-            title_selector=defn["title-selector"],
-            date_selector=defn["date-selector"],
-            next_selector=defn.get("next-selector"),
         )
