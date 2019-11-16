@@ -144,13 +144,15 @@ class SeleniumParser(DateParseMixin, abc.ABC):
 
 def upload_theatre(theatre, parsers):
     name = theatre.name
-    if name in parsers:
-        url = theatre.url
-        root_url = theatre.root_url
+    if name not in parsers:
+        raise ValueError("cannot find parser for theatre {}".format(name))
 
-        parser = parsers[name]
+    url = theatre.url
+    root_url = theatre.root_url
+
+    parser = parsers[name]
+    try:
         parsed = parser(url, root_url).parse()
-
         for item in parsed:
             try:
                 with session() as sess:
@@ -158,8 +160,11 @@ def upload_theatre(theatre, parsers):
                     sess.add(item)
             except IntegrityError:
                 continue
-    else:
-        raise ValueError("cannot find parser for theatre {}".format(name))
+            except Exception as e:
+                print(e)
+                continue
+    except Exception as e:
+        print(e)
 
 
 @click.command()
