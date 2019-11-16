@@ -1,6 +1,6 @@
 import pytest
 import vcr
-from whatson.ingest import ParseHippodrome
+from whatson.parsers import ParseHippodrome
 from datetime import date
 
 
@@ -37,6 +37,6 @@ def test_parse_dates(results, idx, start, end):
 
 
 def test_parse_specific_date(results, parser):
-    result = parser.date_text_to_date("Wed 8 Apr - Sat 11 Apr 2020")
+    result = parser.DATE_PARSER.date_text_to_date("Wed 8 Apr - Sat 11 Apr 2020")
     assert result.start == date(2020, 4, 8)
     assert result.end == date(2020, 4, 11)

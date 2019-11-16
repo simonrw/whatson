@@ -1,16 +1,17 @@
 import pytest  # type: ignore
-from whatson.parsers import ParseResortsWorldArena  # type: ignore
-from datetime import date
 from unittest import mock
+import vcr  # type: ignore
+from whatson.parsers import ParseArenaBirmingham
+from datetime import date
 
 
 @pytest.fixture(scope="session")
 def results():
-    root_url = "https://www.resortsworldarena.co.uk/"
-    url = "https://www.resortsworldarena.co.uk/whats-on/"
+    root_url = "https://www.arenabham.co.uk/"
+    url = "https://www.arenabham.co.uk/whats-on/"
 
-    parser = ParseResortsWorldArena(url, root_url)
-    with open("fixtures/test_parse_resortsworld_arena.html") as infile:
+    parser = ParseArenaBirmingham(url, root_url)
+    with open("fixtures/test_parse_arena_birmingham.html") as infile:
         html = infile.read()
 
     with mock.patch.object(parser, "fetcher") as mock_fetcher:
@@ -20,15 +21,14 @@ def results():
 
 
 def test_number_of_results(results):
-    assert len(results) == 31
+    assert len(results) == 56
 
 
 @pytest.mark.parametrize(
     "idx,start,end",
     [
-        (0, date(2019, 10, 2), date(2019, 10, 6)),
-        (4, date(2019, 10, 19), date(2019, 10, 19)),
-        (16, date(2020, 1, 31), date(2020, 2, 1)),
+        (0, date(2019, 11, 15), date(2019, 11, 17)),
+        (13, date(2019, 12, 23), date(2019, 12, 24)),
     ],
 )
 def test_parse_dates(results, idx, start, end):

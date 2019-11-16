@@ -1,6 +1,6 @@
 from typing import NamedTuple, Optional, TextIO, List
 import configparser
-from .parsers import Parser, custom as CustomParsers
+# from .parsers import Parser, custom as CustomParsers
 
 URL = str
 CSSSelector = str
@@ -58,11 +58,3 @@ class TheatreDefinition(NamedTuple):
             date_selector=defn["date-selector"],
             next_selector=defn.get("next-selector"),
         )
-
-    def to_parser(self) -> Parser:
-        if self.custom_class is not None:
-            cls = getattr(CustomParsers, self.custom_class, None)
-            if not cls:
-                raise ValueError(f"Cannot find custom parser '{self.custom_class}'")
-            return cls(self)
-        return Parser(self)

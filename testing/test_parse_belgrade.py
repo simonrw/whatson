@@ -1,6 +1,6 @@
 import pytest
 import vcr
-from whatson.ingest import ParseBelgrade, ParseAlbany
+from whatson.parsers import ParseBelgrade
 from datetime import date
 
 
