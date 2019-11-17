@@ -2,12 +2,14 @@
 
 
 import abc
+from functools import partial
 import click
 import json
 from bs4 import BeautifulSoup  # type: ignore
 from bs4.element import Tag  # type: ignore
 import requests
 import re
+from concurrent.futures import ThreadPoolExecutor
 from datetime import date, datetime
 from typing import NamedTuple
 from .models import Base, Show, session, engine
@@ -144,6 +146,7 @@ class SeleniumParser(DateParseMixin, abc.ABC):
 
 def upload_theatre(theatre, parsers):
     name = theatre.name
+    print(name)
     if name not in parsers:
         raise ValueError("cannot find parser for theatre {}".format(name))
 
@@ -178,9 +181,7 @@ def main(filename, reset):
     with open(filename) as infile:
         theatres = TheatreDefinition.parse_config(infile)
 
-    parsers = PARSERS
+    fn = partial(upload_theatre, parsers=PARSERS)
 
-    for theatre in theatres:
-        print(theatre.name)
-        if theatre.active:
-            upload_theatre(theatre, parsers)
+    with ThreadPoolExecutor() as pool:
+        pool.map(fn, theatres)
