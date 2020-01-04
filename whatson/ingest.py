@@ -180,6 +180,10 @@ def main():
 
     config = load_config(args.config)
     for theatre_config in config:
+        if not theatre_config["active"]:
+            log.info("Theatre %s is not active, skipping", theatre_config["name"])
+            continue
+
         shows = fetch_shows(theatre_config)
         for show in shows:
             upload(theatre_config["name"], show)
