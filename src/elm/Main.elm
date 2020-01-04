@@ -86,6 +86,7 @@ type alias Model =
     , sortSelection : SortSelection
     , theatres : Set String
     , filterTheatre : Maybe String
+    , error : Maybe String
     }
 
 
@@ -97,6 +98,7 @@ initModel =
     , sortSelection = Date
     , theatres = Set.empty
     , filterTheatre = Nothing
+    , error = Nothing
     }
 
 
@@ -149,6 +151,25 @@ type Msg
     | SelectedTheatre (Maybe String)
 
 
+httpErrorToString : Http.Error -> String
+httpErrorToString e =
+  case e of
+    Http.BadUrl s ->
+      "Bad URL: " ++ s
+
+    Http.Timeout ->
+      "Request timed out"
+
+    Http.NetworkError ->
+      "A network error occurred"
+
+    Http.BadStatus s ->
+      "A bad status code was received: " ++ String.fromInt s
+
+    Http.BadBody s ->
+      "A bad body was received: " ++ s
+
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
@@ -158,7 +179,7 @@ update msg model =
                     ( { model | availableMonths = List.sortWith compareDateElements months }, Cmd.none )
 
                 Err e ->
-                    ( model, Cmd.none )
+                    ( { model | error = Just <| httpErrorToString e }, Cmd.none )
 
         GotShows response ->
             case response of
@@ -171,7 +192,7 @@ update msg model =
                     ( { model | shows = shows, theatres = theatres }, Cmd.none )
 
                 Err e ->
-                    ( model, Cmd.none )
+                    ( { model | error = Just <| httpErrorToString e }, Cmd.none )
 
         SelectedMonth selectedMonth ->
             String.toInt selectedMonth
@@ -261,16 +282,28 @@ rawDateDecoder =
 
 view : Model -> Html Msg
 view model =
-    div [ class "text-white p-4 m-4 flex-col md:text-2xl lg:text-lg" ]
+  case model.error of
+    Nothing ->
+      div [ class "text-white p-4 m-4 flex-col md:text-2xl lg:text-lg" ]
+          [ div [ class "flex-shrink-0" ]
+              [ h1 [ class "text-3xl md:text-5xl font-semibold mb-8" ]
+                  [ text "What's on?"
+                  ]
+              , modelSelect model
+              ]
+          , div []
+              [ viewShows model
+              ]
+          ]
+
+    Just e ->
+      div [ class "text-white p-4 m-4 flex-col md:text-2xl lg:text-lg" ]
         [ div [ class "flex-shrink-0" ]
-            [ h1 [ class "text-3xl md:text-5xl font-semibold mb-8" ]
-                [ text "What's on?"
-                ]
-            , modelSelect model
-            ]
-        , div []
-            [ viewShows model
-            ]
+          [ h1 [ class "text-3xl md:text-5xl font-semibold mb-8" ]
+            [ text "Error" ]
+          , p []
+            [ text e ]
+          ]
         ]
 
 
