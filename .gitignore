@@ -9,3 +9,4 @@ elm-stuff
 dist
 .tox
 .vim
+.env
