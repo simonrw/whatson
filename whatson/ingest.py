@@ -88,6 +88,8 @@ def fetch_shows(theatre_config):
 
     if theatre_config["name"] == "albany":
         return fetch_shows_albany(theatre_config)
+    elif theatre_config["name"] == "belgrade":
+        return fetch_shows_belgrade(theatre_config)
     else:
         raise NotImplementedError(theatre_config["name"])
 
@@ -125,6 +127,98 @@ def fetch_shows_albany(theatre_config):
             # One date therefore start_date = end_date
             start_date = datetime.datetime.strptime(date_str, "%d %B %Y").date()
             end_date = start_date
+
+        yield {
+            "title": title,
+            "image_url": image_url,
+            "link_url": link_url,
+            "start_date": start_date,
+            "end_date": end_date,
+        }
+
+
+def fetch_shows_belgrade(theatre_config):
+    html = _fetch_html(theatre_config["url"])
+    soup = BeautifulSoup(html, "lxml")
+
+    container = soup.find("div", class_="list-productions", id="secondary-content")
+
+    # The month and year _should_ be set up by the first child container, which
+    # will hopefully be a month/year panel. If this is not the case, then we
+    # have to rethink the way this date/time parsing works.
+    month = None
+    year = None
+
+    # Regex replacer to remove 1st/2nd/3rd/4th etc.
+    date_replacer = re.compile(r"\b([0123]?[0-9])(st|th|nd|rd)\b")
+
+    for elem in container.children:
+        if not isinstance(elem, Tag):
+            continue
+
+        if elem.name == "h2":
+            # Month/Year section
+            date_text = elem.text.lower()
+            tmp_date = datetime.datetime.strptime(date_text, "%B %Y").date()
+            month = tmp_date.month
+            year = tmp_date.year
+
+            log.info("found month/year panel, month = %s, year = %s", month, year)
+            continue
+
+        if "class" not in elem.attrs:
+            continue
+
+        if "production-list-item" not in elem.attrs["class"]:
+            continue
+
+        # We should always have a month and year, as hopefully the first panel
+        # is a month/day panel
+        assert month is not None
+        assert year is not None
+
+        title = elem.find("h3").text.strip()
+        date_text = elem.find("p", class_="date").text.strip().lower()
+
+        link_url = elem.find("a", class_="production-link").attrs["href"]
+        link_url = "".join([theatre_config["root_url"], link_url])
+
+        image_url = elem.find("a", class_="production-link").find("img").attrs["src"]
+        image_url = "".join([theatre_config["root_url"], image_url])
+
+        # Parse the date from this panel. First we replace instances of e.g.
+        # 1st -> 1 so that strptime can parse the day and month
+        date_text = date_replacer.sub(r"\1", date_text)
+
+        def parse_single_date(text):
+            try:
+                tmp_date = datetime.datetime.strptime(text, "%d %B").date()
+            except ValueError as e:
+                if "day is out of range for month" in str(e):
+                    # Leap year? Try parsing with the current year
+                    text = f"{text} {year}"
+                    tmp_date = datetime.datetime.strptime(text, "%d %B %Y").date()
+            return datetime.datetime(year, tmp_date.month, tmp_date.day).date()
+
+        if "-" in date_text:
+            # Separate start and end dates
+            parts = [part.strip() for part in date_text.split("-")]
+            start_date = parse_single_date(parts[0])
+            end_date = parse_single_date(parts[1])
+        else:
+            # Single date
+            start_date = parse_single_date(date_text)
+            end_date = start_date
+
+        log.debug("DATES: %s %s", start_date, end_date)
+
+        # Check if the start date and end date make sense. The start date must
+        # be the same as the date panel. If this is not the case, something is
+        # up. Therefore if the end date is before the start date then we must
+        # add one to the end date year.
+        assert start_date.year == year
+        if end_date < start_date:
+            end_date = datetime.date(end_date.year + 1, end_date.month, end_date.day)
 
         yield {
             "title": title,
