@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<!-- paulirish.com/2008/conditional-stylesheets-vs-css-hacks-answer-neither/ -->
+<!--[if lt IE 7]> <html class="no-js ie6 oldie" lang="en"> <![endif]-->
+<!--[if IE 7]>    <html class="no-js ie7 oldie" lang="en"> <![endif]-->
+<!--[if IE 8]>    <html class="no-js ie8 oldie" lang="en"> <![endif]-->
+<!-- Consider adding an manifest.appcache: h5bp.com/d/Offline -->
+<!--[if gt IE 8]><!-->
+<html class="no-js wf-ffmetawebpro-i4-active wf-ffmetawebpro-n7-active wf-ffmetawebpro-n4-active wf-ffmetawebpro-i7-active wf-active" data-ember-extension="1" lang="en"><!--<![endif]--><head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<!-- Use the .htaccess and remove these lines to avoid edge case issues.
+       More info: h5bp.com/b/378 -->
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<title>What's On at the Albany | Albany Theatre</title>
+<meta name="description" content="The Albany is a beautiful Art Deco theatre in the heart of Coventry staging in-house and professional touring dance, drama, music and comedy productions.">
+<meta name="author" content="">
+
+<!-- Place favicon.ico and apple-touch-icon.png in the root directory: mathiasbynens.be/notes/touch-icons -->
+<link href="https://albanytheatre.co.uk/theme/albany/img/favicon.ico" type="image/x-icon" rel="icon"><link href="https://albanytheatre.co.uk/theme/albany/img/favicon.ico" type="image/x-icon" rel="shortcut icon"><!-- Favicons for many different devices/sizes -->
+ <link rel="apple-touch-icon" sizes="57x57" href="https://albanytheatre.co.uk/theme/albany/img/apple-icon-57x57.png">
+ <link rel="apple-touch-icon" sizes="60x60" href="https://albanytheatre.co.uk/theme/albany/img/apple-icon-60x60.png">
+ <link rel="apple-touch-icon" sizes="72x72" href="https://albanytheatre.co.uk/theme/albany/img/apple-icon-72x72.png">
+ <link rel="apple-touch-icon" sizes="76x76" href="https://albanytheatre.co.uk/theme/albany/img/apple-icon-76x76.png">
+ <link rel="apple-touch-icon" sizes="114x114" href="https://albanytheatre.co.uk/theme/albany/img/apple-icon-114x114.png">
+ <link rel="apple-touch-icon" sizes="120x120" href="https://albanytheatre.co.uk/theme/albany/img/apple-icon-120x120.png">
+ <link rel="apple-touch-icon" sizes="144x144" href="https://albanytheatre.co.uk/theme/albany/img/apple-icon-144x144.png">
+ <link rel="apple-touch-icon" sizes="152x152" href="https://albanytheatre.co.uk/theme/albany/img/apple-icon-152x152.png">
+ <link rel="apple-touch-icon" sizes="180x180" href="https://albanytheatre.co.uk/theme/albany/img/apple-icon-180x180.png">
+ <link rel="apple-touch-icon" href="https://albanytheatre.co.uk/theme/albany/img/apple-icon-precomposed.png">
+ <link rel="icon" type="image/png" sizes="192x192" href="https://albanytheatre.co.uk/theme/albany/img/android-icon-192x192.png">
+ <link rel="icon" type="image/png" sizes="32x32" href="https://albanytheatre.co.uk/theme/albany/img/favicon-32x32.png">
+ <link rel="icon" type="image/png" sizes="96x96" href="https://albanytheatre.co.uk/theme/albany/img/favicon-96x96.png">
+ <link rel="icon" type="image/png" sizes="16x16" href="https://albanytheatre.co.uk/theme/albany/img/favicon-16x16.png">
+ <link rel="manifest" href="https://albanytheatre.co.uk/theme/albany/img/manifest.json">
+
+<link rel="stylesheet" type="text/css" href="albany_files/albany-all-styles.css"><script async="" src="albany_files/analytics.js"></script><script id="facebook-jssdk" src="albany_files/sdk.js"></script><script type="text/javascript" src="albany_files/albany-all-scripts.js"></script>
+<script language="javascript" type="text/javascript" src="albany_files/viewfromseats.js">
+</script>
+
+<script language="javascript" type="text/javascript">
+function spekShowViewFromSeat(url, tooltip) {
+
+	// your code here
+	$("#SpektrixIFrame").after('<div class="view-from-seat-img"><img src="'+url+'" alt="'+tooltip+'"/></div>').child[0];
+
+}
+</script>
+<style media="screen">
+	.view-from-seat-img {
+		display: none;
+	}
+	.view-from-seat-img:first-of-type {
+		display: block;
+	}
+	.view-from-seat-img > img {
+		 width: 100%;
+	}
+</style><style type="text/css">.tk-ff-meta-web-pro{font-family:"ff-meta-web-pro",sans-serif;}</style><style type="text/css">@font-face{font-family:ff-meta-web-pro;src:url(https://use.typekit.net/af/3643c6/0000000000000000000175c2/27/l?subset_id=2&fvd=i4&v=3) format("woff2"),url(https://use.typekit.net/af/3643c6/0000000000000000000175c2/27/d?subset_id=2&fvd=i4&v=3) format("woff"),url(https://use.typekit.net/af/3643c6/0000000000000000000175c2/27/a?subset_id=2&fvd=i4&v=3) format("opentype");font-weight:400;font-style:italic;}@font-face{font-family:ff-meta-web-pro;src:url(https://use.typekit.net/af/c8a60e/0000000000000000000175c8/27/l?subset_id=2&fvd=n7&v=3) format("woff2"),url(https://use.typekit.net/af/c8a60e/0000000000000000000175c8/27/d?subset_id=2&fvd=n7&v=3) format("woff"),url(https://use.typekit.net/af/c8a60e/0000000000000000000175c8/27/a?subset_id=2&fvd=n7&v=3) format("opentype");font-weight:700;font-style:normal;}@font-face{font-family:ff-meta-web-pro;src:url(https://use.typekit.net/af/8d5889/0000000000000000000175c1/27/l?subset_id=2&fvd=n4&v=3) format("woff2"),url(https://use.typekit.net/af/8d5889/0000000000000000000175c1/27/d?subset_id=2&fvd=n4&v=3) format("woff"),url(https://use.typekit.net/af/8d5889/0000000000000000000175c1/27/a?subset_id=2&fvd=n4&v=3) format("opentype");font-weight:400;font-style:normal;}@font-face{font-family:ff-meta-web-pro;src:url(https://use.typekit.net/af/e796bc/0000000000000000000175c7/27/l?subset_id=2&fvd=i7&v=3) format("woff2"),url(https://use.typekit.net/af/e796bc/0000000000000000000175c7/27/d?subset_id=2&fvd=i7&v=3) format("woff"),url(https://use.typekit.net/af/e796bc/0000000000000000000175c7/27/a?subset_id=2&fvd=i7&v=3) format("opentype");font-weight:700;font-style:italic;}</style>
+
+</head>
+
+<body>
+	<div id="doc" class="ltr">
+		<header>
+			<ul class="header-utils-menu"><li><a href="https://albanytheatre.co.uk/basket" class="basket"><span>Basket</span></a></li><li><a href="https://albanytheatre.co.uk/donate" class="donate"><span>Donate</span></a></li><li><a href="https://albanytheatre.co.uk/my-account" class="my-account"><span>My Account</span></a></li><li><a href="https://albanytheatre.co.uk/contact-us-2" class="contact-us-2"><span>Contact Us</span></a></li><li><a href="https://albanytheatre.co.uk/getting-here-1" class="getting-here-1"><span>Getting Here</span></a></li></ul>			<h1 class="sitename">
+				<a href="https://albanytheatre.co.uk/" title="Albany Theatre - The Albany is a beautiful Art Deco theatre in the heart of Coventry staging in-house and professional touring dance, drama, music and comedy productions.">
+					<span>Albany Theatre </span>
+				</a>
+			</h1>
+			<div class="logo-icon">
+				<img src="albany_files/logomark.png" alt="Logo">			</div>
+			<div class="contact">
+				<dl>
+					<dt class="tel">
+						Box Office					</dt>
+					<dd>
+						024 7699 8964					</dd>
+					<dt class="twitter">
+						Follow					</dt>
+					<dd>
+						<a href="https://twitter.com/AlbanyTheatre">@AlbanyTheatre</a>					</dd>
+				</dl>
+			</div>
+			<div class="menu clearfix">
+				<ul class="mainmenu sf-menu sf-arrows"><li><a href="https://albanytheatre.co.uk/whats-on" class="whats-on whats-on-active active sf-with-ul"><span>What's On</span></a><ul><li><a href="https://albanytheatre.co.uk/whatson" class="whatson"><span>All</span></a></li><li><a href="https://albanytheatre.co.uk/theatre" class="theatre"><span>Drama</span></a></li><li><a href="https://albanytheatre.co.uk/whats-on-dance" class="whats-on-dance"><span>Dance</span></a></li><li><a href="https://albanytheatre.co.uk/whats-on-music" class="whats-on-music"><span>Music</span></a></li><li><a href="https://albanytheatre.co.uk/whats-on-comedy" class="whats-on-comedy"><span>Comedy</span></a></li><li><a href="https://albanytheatre.co.uk/whats-on-the-studio" class="whats-on-the-studio"><span>The Studio</span></a></li><li><a href="https://albanytheatre.co.uk/whats-on-schools" class="whats-on-schools"><span>Families &amp; Children</span></a></li></ul></li><li><a href="https://albanytheatre.co.uk/about-us" class="about-us sf-with-ul"><span>About Us</span></a><ul><li><a href="https://albanytheatre.co.uk/contact-us" class="contact-us"><span>Contact us</span></a></li><li><a href="https://albanytheatre.co.uk/whos-who" class="whos-who"><span>Who's Who</span></a></li><li><a href="https://albanytheatre.co.uk/our-vision" class="our-vision"><span>Our Vision</span></a></li><li><a href="https://albanytheatre.co.uk/albany-theatre-trust" class="albany-theatre-trust"><span>Albany Theatre Trust</span></a></li><li><a href="https://albanytheatre.co.uk/history" class="history"><span>History</span></a></li><li><a href="https://albanytheatre.co.uk/join-us" class="join-us"><span>Work Opportunities</span></a></li></ul></li><li><a href="https://albanytheatre.co.uk/your-visit" class="your-visit sf-with-ul"><span>Your Visit</span></a><ul><li><a href="https://albanytheatre.co.uk/getting-here" class="getting-here"><span>Getting Here</span></a></li><li><a href="https://albanytheatre.co.uk/box-office" class="box-office"><span>Box Office</span></a></li><li><a href="https://albanytheatre.co.uk/accessibility" class="accessibility"><span>Accessibility</span></a></li><li><a href="https://albanytheatre.co.uk/seating-plan" class="seating-plan"><span>Seating Plan</span></a></li><li><a href="https://albanytheatre.co.uk/gift-vouchers" class="gift-vouchers"><span>Gift Vouchers</span></a></li><li><a href="https://albanytheatre.co.uk/families" class="families"><span>Families</span></a></li><li><a href="https://albanytheatre.co.uk/schools" class="schools"><span>Schools</span></a></li><li><a href="https://albanytheatre.co.uk/group-booking" class="group-booking"><span>Group Booking</span></a></li></ul></li><li><a href="https://albanytheatre.co.uk/support-us" class="support-us sf-with-ul"><span>Support Us</span></a><ul><li><a href="https://albanytheatre.co.uk/volunteer" class="volunteer"><span>Volunteer</span></a></li><li><a href="https://albanytheatre.co.uk/donations" class="donations"><span>Donations</span></a></li><li><a href="https://albanytheatre.co.uk/leave-a-legacy" class="leave-a-legacy"><span>Leave a Legacy</span></a></li></ul></li><li><a href="https://albanytheatre.co.uk/hire-the-theatre" class="hire-the-theatre sf-with-ul"><span>Hire The Theatre</span></a><ul><li><a href="https://albanytheatre.co.uk/hire-the-studio" class="hire-the-studio"><span>Hire The Studio</span></a></li></ul></li><li><a href="https://albanytheatre.co.uk/news-and-blog" class="news-and-blog sf-with-ul"><span>News and Blog</span></a><ul><li><a href="https://albanytheatre.co.uk/news-and-blog-news" class="news-and-blog-news"><span>News</span></a></li><li><a href="https://albanytheatre.co.uk/news-and-blog-shows" class="news-and-blog-shows"><span>Shows</span></a></li><li><a href="https://albanytheatre.co.uk/news-and-blog-albany-theatre-trust" class="news-and-blog-albany-theatre-trust"><span>Albany Theatre Trust</span></a></li></ul></li></ul>			</div>
+		</header>
+		<div id="content">
+			<div class="yui3-g">
+				<div class="yui3-u-3-4">
+					<div class="content-main">
+						<div class="nodes view ltr" lang="en">
+
+<div class="edit_bar">
+	
+</div>
+
+<article class="ct-standard ">
+		
+		<div class="featured">
+			
+<span class="media image">
+  <img src="albany_files/5a68b9e2-23a4-49fc-86ba-567c0a520da4.png" alt="" width="697" height="300"></span>			<span class="arrow"></span>
+					</div>
+					<h2>What's On at the Albany</h2>
+		<div class="page-content">
+		<div class="outer">
+	<a class="button row small selected" style="width:50px!important;">All</a> <a class="button row small" href="https://albanytheatre.co.uk/theatre">Drama</a> <a class="button row small" href="https://albanytheatre.co.uk/whats-on-dance">Dance</a> <a class="button row small" href="https://albanytheatre.co.uk/whats-on-music">Music</a> <a class="button row small" href="https://albanytheatre.co.uk/whats-on-comedy">Comedy</a> <a class="button row small" href="https://albanytheatre.co.uk/whats-on/whats-on-the-studio" rel="slugs">The Studio</a> <a class="button row small" href="https://albanytheatre.co.uk/whats-on/whats-on-schools" rel="slugs">Families &amp; Children </a></div>
+<div id="93-block_query_widgets" class="query_block query_block_one_col">
+
+		
+
+		    	    <div class="more-link"><a href="https://albanytheatre.co.uk/whats-on">View All Shows »</a></div>
+	    					<div class="query_block_content template_one_col">
+	<div class="first_row"><div class="list_item ltr">
+		<div class="list-item one-col-list-item">
+	<div class="list-item-image">
+		<a href="https://albanytheatre.co.uk/ptp-aladdin">
+<span class="media image">
+  <img src="albany_files/5cae0b97-c4c8-4897-b60d-47f50a520da4.png" alt="" width="165" height="124"></span></a>	</div>
+	<div class="list-item-content">
+			<div class="show-date">1 January - 5 January 2020</div>
+			<h4><a href="https://albanytheatre.co.uk/ptp-aladdin">Aladdin</a></h4>
+							<p>Join Phoenix Theatre Productions on the streets of Old Peking.
+ Prepare to go on a magic carpet ride full of adventure and discovery!</p>
+						<a href="https://albanytheatre.co.uk/ptp-aladdin">Book tickets / Find out more</a>	</div>
+</div>
+		<div class="clear"></div>
+	</div></div>
+		<div class=""><div class="list_item ltr">
+		<div class="list-item one-col-list-item">
+	<div class="list-item-image">
+		<a href="https://albanytheatre.co.uk/comedy-club">
+<span class="media image">
+  <img src="albany_files/5e09e4cb-8d2c-468a-a5d3-6a710a5586a6.png" alt="" width="165" height="124"></span></a>	</div>
+	<div class="list-item-content">
+			<div class="show-date">10 January 2020</div>
+			<h4><a href="https://albanytheatre.co.uk/comedy-club">Comedy Club</a></h4>
+							<p>It's all about the funny... We are delighted to announce our brand new Comedy Club in conjunction with Off The Kerb.</p>
+						<a href="https://albanytheatre.co.uk/comedy-club">Book tickets / Find out more</a>	</div>
+</div>
+		<div class="clear"></div>
+	</div></div>
+		<div class=""><div class="list_item ltr">
+		<div class="list-item one-col-list-item">
+	<div class="list-item-image">
+		<a href="https://albanytheatre.co.uk/cvfolk-1">
+<span class="media image">
+  <img src="albany_files/5ae87752-3f30-4de3-9693-618c0a520da4.jpg" alt="" width="165" height="124"></span></a>	</div>
+	<div class="list-item-content">
+			<div class="show-date">12 January 2020</div>
+			<h4><a href="https://albanytheatre.co.uk/cvfolk-1">CV Folk Second Sunday</a></h4>
+							<p>Live and acoustic music and dance events from CV Folk, bringing you the best in classic and contemporary folk.</p>
+						<a href="https://albanytheatre.co.uk/cvfolk-1">Book tickets / Find out more</a>	</div>
+</div>
+		<div class="clear"></div>
+	</div></div>
+		<div class=""><div class="list_item ltr">
+		<div class="list-item one-col-list-item">
+	<div class="list-item-image">
+		<a href="https://albanytheatre.co.uk/dance-to-the-music-1">
+<span class="media image">
+  <img src="albany_files/5d36d54e-b648-4e70-ba91-487b0a520da4.png" alt="" width="165" height="124"></span></a>	</div>
+	<div class="list-item-content">
+			<div class="show-date">14 January 2020</div>
+			<h4><a href="https://albanytheatre.co.uk/dance-to-the-music-1">Dance To The Music 2020</a></h4>
+							<p>A beautiful &amp; glamorous dance show created, directed&amp; 
+choreographed by ex-Strictly pro Kristina Rihanoff &amp; hosted by Jake 
+Quickenden!</p>
+						<a href="https://albanytheatre.co.uk/dance-to-the-music-1">Book tickets / Find out more</a>	</div>
+</div>
+		<div class="clear"></div>
+	</div></div>
+		<div class=""><div class="list_item ltr">
+		<div class="list-item one-col-list-item">
+	<div class="list-item-image">
+		<a href="https://albanytheatre.co.uk/be-bop-a-lula">
+<span class="media image">
+  <img src="albany_files/5dd54c5b-867c-4f49-b05d-35190a5586a6.png" alt="" width="165" height="124"></span></a>	</div>
+	<div class="list-item-content">
+			<div class="show-date">17 January 2020</div>
+			<h4><a href="https://albanytheatre.co.uk/be-bop-a-lula">Be Bop A Lula</a></h4>
+							<p>The West End smash hit comes to town starring giants of rock'n'roll - Eddie Cochran, Gene Vincent, Billy Fury and Buddy Holly.</p>
+						<a href="https://albanytheatre.co.uk/be-bop-a-lula">Book tickets / Find out more</a>	</div>
+</div>
+		<div class="clear"></div>
+	</div></div>
+		<div class=""><div class="list_item ltr">
+		<div class="list-item one-col-list-item">
+	<div class="list-item-image">
+		<a href="https://albanytheatre.co.uk/jane-eyre">
+<span class="media image">
+  <img src="albany_files/5d42f5ec-f6f0-46cb-af4f-0b860a520da4.png" alt="" width="165" height="124"></span></a>	</div>
+	<div class="list-item-content">
+			<div class="show-date">22 January - 23 January 2020</div>
+			<h4><a href="https://albanytheatre.co.uk/jane-eyre">Jane Eyre</a></h4>
+							<p>Captivating, brooding and intensely powerful, Jane Eyre is a 
+moving and unforgettable portrayal of one woman’s quest for equality and
+ freedom.</p>
+						<a href="https://albanytheatre.co.uk/jane-eyre">Book tickets / Find out more</a>	</div>
+</div>
+		<div class="clear"></div>
+	</div></div>
+		<div class=""><div class="list_item ltr">
+		<div class="list-item one-col-list-item">
+	<div class="list-item-image">
+		<a href="https://albanytheatre.co.uk/little-star">
+<span class="media image">
+  <img src="albany_files/5d4c0bf6-0538-48c8-8794-2a670a520da4.png" alt="" width="165" height="124"></span></a>	</div>
+	<div class="list-item-content">
+			<div class="show-date">27 January 2020</div>
+			<h4><a href="https://albanytheatre.co.uk/little-star">Little Star - Baby Show</a></h4>
+							<p>A starlit show for babies based on the song Twinkle Twinkle 
+Little Star. Puppetry, music and captivating visuals to delight young 
+audiences.</p>
+						<a href="https://albanytheatre.co.uk/little-star">Book tickets / Find out more</a>	</div>
+</div>
+		<div class="clear"></div>
+	</div></div>
+		<div class=""><div class="list_item ltr">
+		<div class="list-item one-col-list-item">
+	<div class="list-item-image">
+		<a href="https://albanytheatre.co.uk/elvis-2020">
+<span class="media image">
+  <img src="albany_files/5c7942d1-4608-4cbc-a6d3-168d0a520da4.png" alt="" width="165" height="124"></span></a>	</div>
+	<div class="list-item-content">
+			<div class="show-date">7 February - 8 February 2020</div>
+			<h4><a href="https://albanytheatre.co.uk/elvis-2020">The World Famous Elvis Show</a></h4>
+							<p>Chris Connor as Elvis is back for 2020! Made by Elvis fans for
+ Elvis fans. You seriously do not want to miss this electric, authentic 
+show!</p>
+						<a href="https://albanytheatre.co.uk/elvis-2020">Book tickets / Find out more</a>	</div>
+</div>
+		<div class="clear"></div>
+	</div></div>
+		<div class=""><div class="list_item ltr">
+		<div class="list-item one-col-list-item">
+	<div class="list-item-image">
+		<a href="https://albanytheatre.co.uk/stars-and-spotlights">
+<span class="media image">
+  <img src="albany_files/5dd2b56f-03a8-427e-b72f-74490a5586a6.png" alt="" width="165" height="124"></span></a>	</div>
+	<div class="list-item-content">
+			<div class="show-date">9 February - 10 February 2020</div>
+			<h4><a href="https://albanytheatre.co.uk/stars-and-spotlights">Stars and Spotlights</a></h4>
+							<p>Chorley School of Dance present 'Stars and Spotlights'! </p>
+						<a href="https://albanytheatre.co.uk/stars-and-spotlights">Book tickets / Find out more</a>	</div>
+</div>
+		<div class="clear"></div>
+	</div></div>
+		<div class=""><div class="list_item ltr">
+		<div class="list-item one-col-list-item">
+	<div class="list-item-image">
+		<a href="https://albanytheatre.co.uk/jersey-beats-2020">
+<span class="media image">
+  <img src="albany_files/5d430513-0d94-4ee4-b9ec-25d30a520da4.PNG" alt="" width="165" height="124"></span></a>	</div>
+	<div class="list-item-content">
+			<div class="show-date">11 February 2020</div>
+			<h4><a href="https://albanytheatre.co.uk/jersey-beats-2020">The Jersey Beats - Oh What A Nite!</a></h4>
+							<p>One of the greatest tributes to Frankie Valli and the Four Seasons, The Jersey Beats return for 2020!</p>
+						<a href="https://albanytheatre.co.uk/jersey-beats-2020">Book tickets / Find out more</a>	</div>
+</div>
+		<div class="clear"></div>
+	</div></div>
+		<div class=""><div class="list_item ltr">
+		<div class="list-item one-col-list-item">
+	<div class="list-item-image">
+		<a href="https://albanytheatre.co.uk/dom-joly">
+<span class="media image">
+  <img src="albany_files/5d836819-0118-491a-ab17-5cad0a520da4.png" alt="" width="165" height="124"></span></a>	</div>
+	<div class="list-item-content">
+			<div class="show-date">13 February 2020</div>
+			<h4><a href="https://albanytheatre.co.uk/dom-joly">Dom Joly - Holiday Snaps</a></h4>
+							<p>The creator of Trigger Happy TV, Dom Joly is embarking on his 
+first UK tour since 2011, in a rare opportunity for fans to see him 
+live!</p>
+						<a href="https://albanytheatre.co.uk/dom-joly">Book tickets / Find out more</a>	</div>
+</div>
+		<div class="clear"></div>
+	</div></div>
+		<div class=""><div class="list_item ltr">
+		<div class="list-item one-col-list-item">
+	<div class="list-item-image">
+		<a href="https://albanytheatre.co.uk/shark-in-the-park">
+<span class="media image">
+  <img src="albany_files/5e09fa8a-81fc-4aea-b4dc-52930a5586a6.png" alt="" width="165" height="124"></span></a>	</div>
+	<div class="list-item-content">
+			<div class="show-date">14 February 2020</div>
+			<h4><a href="https://albanytheatre.co.uk/shark-in-the-park">Shark in the Park</a></h4>
+							<p>Timothy Pope is looking through his telescope – but wait, is that a Shark, in the Park!?   </p>
+						<a href="https://albanytheatre.co.uk/shark-in-the-park">Book tickets / Find out more</a>	</div>
+</div>
+		<div class="clear"></div>
+	</div></div>
+		<div class=""><div class="list_item ltr">
+		<div class="list-item one-col-list-item">
+	<div class="list-item-image">
+		<a href="https://albanytheatre.co.uk/giovanni2020">
+<span class="media image">
+  <img src="albany_files/5cf14fd1-5594-4250-bdc8-54530a520da4.jpg" alt="" width="165" height="124"></span></a>	</div>
+	<div class="list-item-content">
+			<div class="show-date">27 February 2020</div>
+			<h4><a href="https://albanytheatre.co.uk/giovanni2020">Giovanni Pernice - This Is Me</a></h4>
+							<p>Strictly Come Dancing favourite, Giovanni Pernice is set to 
+light up the Albany stage again with the UK Tour Première of his 
+brand-new show for 2020.</p>
+						<a href="https://albanytheatre.co.uk/giovanni2020">Book tickets / Find out more</a>	</div>
+</div>
+		<div class="clear"></div>
+	</div></div>
+		<div class=""><div class="list_item ltr">
+		<div class="list-item one-col-list-item">
+	<div class="list-item-image">
+		<a href="https://albanytheatre.co.uk/adult-panto">
+<span class="media image">
+  <img src="albany_files/5d3eca65-6e50-4e46-b606-058c0a520da4.png" alt="" width="165" height="124"></span></a>	</div>
+	<div class="list-item-content">
+			<div class="show-date">28 February 2020</div>
+			<h4><a href="https://albanytheatre.co.uk/adult-panto">Jack (Off) and the Beanstalk</a></h4>
+							<p>An adult panto for all you big boys &amp; girls, so leave the 
+kids at home and get your tickets for this fun &amp; filthy show for one
+ night only.</p>
+						<a href="https://albanytheatre.co.uk/adult-panto">Book tickets / Find out more</a>	</div>
+</div>
+		<div class="clear"></div>
+	</div></div>
+		<div class=""><div class="list_item ltr">
+		<div class="list-item one-col-list-item">
+	<div class="list-item-image">
+		<a href="https://albanytheatre.co.uk/sarah-and-duck">
+<span class="media image">
+  <img src="albany_files/5dbc342e-0f6c-44ef-8be2-76cf0a5586a6.png" alt="" width="165" height="124"></span></a>	</div>
+	<div class="list-item-content">
+			<div class="show-date">29 February 2020</div>
+			<h4><a href="https://albanytheatre.co.uk/sarah-and-duck">Sarah and Duck</a></h4>
+							<p>Told through a fantastic blend of puppetry, storytelling and 
+music, Sarah and Duck’s Big Top Birthday will take you and your children
+ on a magical adventure!</p>
+						<a href="https://albanytheatre.co.uk/sarah-and-duck">Book tickets / Find out more</a>	</div>
+</div>
+		<div class="clear"></div>
+	</div></div>
+		<div class=""><div class="list_item ltr">
+		<div class="list-item one-col-list-item">
+	<div class="list-item-image">
+		<a href="https://albanytheatre.co.uk/moody-blues">
+<span class="media image">
+  <img src="albany_files/5dee4370-4f38-4ff9-b511-5dae0a5586a6.png" alt="" width="165" height="124"></span></a>	</div>
+	<div class="list-item-content">
+			<div class="show-date">5 March 2020</div>
+			<h4><a href="https://albanytheatre.co.uk/moody-blues">GO NOW! The Music of the Moody Blues</a></h4>
+							<p>The timeless sounds of the greatest classic rock band of a generation and Rock and Roll Hall Of Famers THE MOODY BLUES</p>
+						<a href="https://albanytheatre.co.uk/moody-blues">Book tickets / Find out more</a>	</div>
+</div>
+		<div class="clear"></div>
+	</div></div>
+		<div class=""><div class="list_item ltr">
+		<div class="list-item one-col-list-item">
+	<div class="list-item-image">
+		<a href="https://albanytheatre.co.uk/mark-harrison">
+<span class="media image">
+  <img src="albany_files/5de7b007-48f0-457f-bbcd-6f010a5586a6.png" alt="" width="165" height="124"></span></a>	</div>
+	<div class="list-item-content">
+			<div class="show-date">6 March 2020</div>
+			<h4><a href="https://albanytheatre.co.uk/mark-harrison">Mark Harrison</a></h4>
+							<p>Widely considered one of the most original and interesting 
+artists currently operating, Mark Harrison brings his striking rhythms 
+to our studio stage.</p>
+						<a href="https://albanytheatre.co.uk/mark-harrison">Book tickets / Find out more</a>	</div>
+</div>
+		<div class="clear"></div>
+	</div></div>
+		<div class=""><div class="list_item ltr">
+		<div class="list-item one-col-list-item">
+	<div class="list-item-image">
+		<a href="https://albanytheatre.co.uk/elevate-theatre">
+<span class="media image">
+  <img src="albany_files/5ddd4615-965c-4100-b72e-5f280a5586a6.png" alt="" width="165" height="124"></span></a>	</div>
+	<div class="list-item-content">
+			<div class="show-date">7 March 2020</div>
+			<h4><a href="https://albanytheatre.co.uk/elevate-theatre">Little Mermaid Jr.</a></h4>
+							<p>Elevate Theatre is proud to take you on a magical Journey 
+under the sea with Ariel and her aquatic friends in Disney's The Little 
+Mermaid JR.</p>
+						<a href="https://albanytheatre.co.uk/elevate-theatre">Book tickets / Find out more</a>	</div>
+</div>
+		<div class="clear"></div>
+	</div></div>
+		<div class=""><div class="list_item ltr">
+		<div class="list-item one-col-list-item">
+	<div class="list-item-image">
+		<a href="https://albanytheatre.co.uk/3-hail-marys">
+<span class="media image">
+  <img src="albany_files/5de10456-e0e4-4628-94b6-18580a5586a6.png" alt="" width="165" height="124"></span></a>	</div>
+	<div class="list-item-content">
+			<div class="show-date">13 March 2020</div>
+			<h4><a href="https://albanytheatre.co.uk/3-hail-marys">3 Hail Mary's</a></h4>
+							<p>Hilarious Irish comedy that lifts the lid on the nursing home 
+experience - twists, turns and a rousing finale that rocks with 
+laughter.</p>
+						<a href="https://albanytheatre.co.uk/3-hail-marys">Book tickets / Find out more</a>	</div>
+</div>
+		<div class="clear"></div>
+	</div></div>
+		<div class=""><div class="list_item ltr">
+		<div class="list-item one-col-list-item">
+	<div class="list-item-image">
+		<a href="https://albanytheatre.co.uk/jive-talkin">
+<span class="media image">
+  <img src="albany_files/5d3ac363-e6b4-4ab8-910d-13ec0a520da4.png" alt="" width="165" height="124"></span></a>	</div>
+	<div class="list-item-content">
+			<div class="show-date">21 March 2020</div>
+			<h4><a href="https://albanytheatre.co.uk/jive-talkin">Jive Talkin'</a></h4>
+							<p>The timeless repertoire of the Bee Gees is brought to life in 
+this stunning stage production that is taking the country by storm.</p>
+						<a href="https://albanytheatre.co.uk/jive-talkin">Book tickets / Find out more</a>	</div>
+</div>
+		<div class="clear"></div>
+	</div></div>
+		<div class=""><div class="list_item ltr">
+		<div class="list-item one-col-list-item">
+	<div class="list-item-image">
+		<a href="https://albanytheatre.co.uk/swallowed-a-fly">
+<span class="media image">
+  <img src="albany_files/5d665bd2-8d24-423d-abf2-02620a520da4.png" alt="" width="165" height="124"></span></a>	</div>
+	<div class="list-item-content">
+			<div class="show-date">22 March 2020</div>
+			<h4><a href="https://albanytheatre.co.uk/swallowed-a-fly">There Was An Old Lady Who Swallowed A Fly</a></h4>
+							<p>There Was an Old Lady Who Swallowed A Fly. I don’t know why 
+she swallowed a fly... From the creators of Don't Dribble On The Dragon,
+ this magical show has been written especially for grown-ups to enjoy 
+with their children.</p>
+						<a href="https://albanytheatre.co.uk/swallowed-a-fly">Book tickets / Find out more</a>	</div>
+</div>
+		<div class="clear"></div>
+	</div></div>
+		<div class=""><div class="list_item ltr">
+		<div class="list-item one-col-list-item">
+	<div class="list-item-image">
+		<a href="https://albanytheatre.co.uk/rapunzel">
+<span class="media image">
+  <img src="albany_files/5cefb06f-e6e4-456d-8431-07540a520da4.png" alt="" width="165" height="124"></span></a>	</div>
+	<div class="list-item-content">
+			<div class="show-date">11 April 2020</div>
+			<h4><a href="https://albanytheatre.co.uk/rapunzel">Rapunzel</a></h4>
+							<p>A tangled musical adventure! Rapunzel lets her hair down in a brand-new staging of the popular fairy tale for all the family!</p>
+						<a href="https://albanytheatre.co.uk/rapunzel">Book tickets / Find out more</a>	</div>
+</div>
+		<div class="clear"></div>
+	</div></div>
+		<div class=""><div class="list_item ltr">
+		<div class="list-item one-col-list-item">
+	<div class="list-item-image">
+		<a href="https://albanytheatre.co.uk/kendal-mountain-festival">
+<span class="media image">
+  <img src="albany_files/5dee49d9-e880-43d3-b840-5dae0a5586a6.jpg" alt="" width="165" height="124"></span></a>	</div>
+	<div class="list-item-content">
+			<div class="show-date">23 April 2020</div>
+			<h4><a href="https://albanytheatre.co.uk/kendal-mountain-festival">Kendal Mountain Festival</a></h4>
+							<p>Stories of human endurance, breathtaking environments and 
+soul-stirring journeys - a brand new collection of short films on the 
+big screen</p>
+						<a href="https://albanytheatre.co.uk/kendal-mountain-festival">Book tickets / Find out more</a>	</div>
+</div>
+		<div class="clear"></div>
+	</div></div>
+		<div class=""><div class="list_item ltr">
+		<div class="list-item one-col-list-item">
+	<div class="list-item-image">
+		<a href="https://albanytheatre.co.uk/lemons">
+<span class="media image">
+  <img src="albany_files/5defa1e0-df14-4048-963e-6cff0a5586a6.jpg" alt="" width="165" height="124"></span></a>	</div>
+	<div class="list-item-content">
+			<div class="show-date">29 April - 30 April 2020</div>
+			<h4><a href="https://albanytheatre.co.uk/lemons">Lemons Lemons Lemons Lemons Lemons</a></h4>
+							<p>The average person will speak 123,205,750 words in a lifetime.
+ But what if there were a limit? Oliver and Bernadette are about to find
+ out...</p>
+						<a href="https://albanytheatre.co.uk/lemons">Book tickets / Find out more</a>	</div>
+</div>
+		<div class="clear"></div>
+	</div></div>
+		<div class=""><div class="list_item ltr">
+		<div class="list-item one-col-list-item">
+	<div class="list-item-image">
+		<a href="https://albanytheatre.co.uk/sense-and-sensibility">
+<span class="media image">
+  <img src="albany_files/5d947f82-e694-456f-8833-75850a520da4.png" alt="" width="165" height="124"></span></a>	</div>
+	<div class="list-item-content">
+			<div class="show-date">1 May 2020</div>
+			<h4><a href="https://albanytheatre.co.uk/sense-and-sensibility">Sense and Sensibility</a></h4>
+							<p>Join Ballet Theatre UK as they delve into the romantic world 
+of Jane Austin with their classical adaptation of Sense and Sensibility.</p>
+						<a href="https://albanytheatre.co.uk/sense-and-sensibility">Book tickets / Find out more</a>	</div>
+</div>
+		<div class="clear"></div>
+	</div></div>
+		<div class=""><div class="list_item ltr">
+		<div class="list-item one-col-list-item">
+	<div class="list-item-image">
+		<a href="https://albanytheatre.co.uk/the-dublin-legends">
+<span class="media image">
+  <img src="albany_files/5df905cb-cbc4-4c1b-8cb5-066a0a5586a6.png" alt="" width="165" height="124"></span></a>	</div>
+	<div class="list-item-content">
+			<div class="show-date">12 May 2020</div>
+			<h4><a href="https://albanytheatre.co.uk/the-dublin-legends">The Dublin Legends</a></h4>
+							<p>The Dublin Legends – formerly the world-famous Irish folk band
+ The Dubliners – play a full live concert as part of their nationwide 
+"Seven Drunken Nights” tour.</p>
+						<a href="https://albanytheatre.co.uk/the-dublin-legends">Book tickets / Find out more</a>	</div>
+</div>
+		<div class="clear"></div>
+	</div></div>
+		<div class=""><div class="list_item ltr">
+		<div class="list-item one-col-list-item">
+	<div class="list-item-image">
+		<a href="https://albanytheatre.co.uk/act-two">
+<span class="media image">
+  <img src="albany_files/5d399f34-27a4-4239-bf15-053c0a520da4.png" alt="" width="165" height="124"></span></a>	</div>
+	<div class="list-item-content">
+			<div class="show-date">6 June 2020</div>
+			<h4><a href="https://albanytheatre.co.uk/act-two">Ian Waite and Vincent Simone - Act Two</a></h4>
+							<p>After the roaring success of their 5-star rated 2019 tour, The
+ Ballroom Boys double act Ian Waite &amp; Vincent Simone are back with 
+Act Two!</p>
+						<a href="https://albanytheatre.co.uk/act-two">Book tickets / Find out more</a>	</div>
+</div>
+		<div class="clear"></div>
+	</div></div>
+		<div class=""><div class="list_item ltr">
+		<div class="list-item one-col-list-item">
+	<div class="list-item-image">
+		<a href="https://albanytheatre.co.uk/girls-just-wanna">
+<span class="media image">
+  <img src="albany_files/5e0f2694-0648-41be-9a04-52c70a5586a6.png" alt="" width="165" height="124"></span></a>	</div>
+	<div class="list-item-content">
+			<div class="show-date">11 June 2020</div>
+			<h4><a href="https://albanytheatre.co.uk/girls-just-wanna">Girls Just Wanna Have Fun</a></h4>
+							<p>From the producers of Hormonal Housewives, join this star cast
+ for a musical comedy sketch show full of laugh-out-loud antics and 
+classic pop anthems!</p>
+						<a href="https://albanytheatre.co.uk/girls-just-wanna">Book tickets / Find out more</a>	</div>
+</div>
+		<div class="clear"></div>
+	</div></div>
+		<div class=""><div class="list_item ltr">
+		<div class="list-item one-col-list-item">
+	<div class="list-item-image">
+		<a href="https://albanytheatre.co.uk/mersey-beatles-2020">
+<span class="media image">
+  <img src="albany_files/5dcc1816-baf0-43f1-aa14-033b0a5586a6.png" alt="" width="165" height="124"></span></a>	</div>
+	<div class="list-item-content">
+			<div class="show-date">20 November 2020</div>
+			<h4><a href="https://albanytheatre.co.uk/mersey-beatles-2020">The Mersey Beatles 2020 </a></h4>
+							<p>The Mersey Beatles are back! Fans of The Beatles, prepare to 
+be wowed by the world’s favourite Liverpool-born tribute to the Fab 
+Four.</p>
+						<a href="https://albanytheatre.co.uk/mersey-beatles-2020">Book tickets / Find out more</a>	</div>
+</div>
+		<div class="clear"></div>
+	</div></div>
+		<div class=""><div class="list_item ltr">
+		<div class="list-item one-col-list-item">
+	<div class="list-item-image">
+		<a href="https://albanytheatre.co.uk/brochure"></a>	</div>
+	<div class="list-item-content">
+			<h4><a href="https://albanytheatre.co.uk/brochure">Mini-Brochure | Winter 2020</a></h4>
+							<p></p>
+					<a href="https://albanytheatre.co.uk/brochure">Book tickets / Find out more</a>	</div>
+</div>
+		<div class="clear"></div>
+	</div></div>
+	</div>
+</div>
+	</div>
+	</article>
+
+
+<div style="display:none">no comments</div>
+
+</div>
+					</div>
+				</div>
+				<div class="yui3-u-1-4">
+					<aside class="sidebar">
+						
+<div id="block_5031" class="block">
+  <div class="block_content"><section class="ct-standard-block ct-standard-block-white">
+				<h3>Join the <em>mailing list</em></h3>
+		<form action="https://system.spektrix.com/albanytheatrecoventry/website/secure/signup.aspx" method="POST">
+	<input name="ReturnUrl" type="hidden" value="https://albanytheatre.co.uk/"> First name: <input name="FirstName" type="text"><br>
+	Last name: <input name="LastName" type="text"><br>
+	Email address: <input name="Email" type="text">
+	<p>
+		<input class="button row small book" style="cursor:pointer;float:right;" type="submit" value="Signup"></p>
+</form>
+<p>
+	&nbsp;</p>
+<h3>
+	Join us <em>online</em></h3>
+<p>
+	<a href="https://www.facebook.com/TheAlbanyTheatre" target="_blank"> <img src="albany_files/57482f85-9f00-4f1f-a9d7-788e0a658675.png" width="30px"> </a> <a href="https://twitter.com/albanytheatre" target="_blank"><img src="albany_files/57489101-1cc4-492d-98e5-443f0a658675.png" width="30px"></a> <a href="https://www.instagram.com/explore/locations/230949489/" target="_blank"><img src="albany_files/574891d3-1bd8-464e-b630-443e0a658675.png" width="30px"></a>
+	<style type="text/css">
+div.outer {text-align:center; width: 100%;}
+.button {background-color: #771d33; color: white; padding: 10px; margin: 2px; text-align: center; text-decoration: none; display: inline-block;}
+.button:hover {background-color: #686868;}
+.show {width:170px;float:right;padding:5px!important;}
+.row {width:120px;}
+.small {width:70px!important;}
+.book {padding:5px!important;}
+.selected {background-color: #686868;!important}
+.btn-buy-tickets {border: 2px solid black;border-radius:3px}
+.basket-modal {cursor:pointer;background-color: #771d33; color: white; padding: 10px; margin: 2px; text-align: center; text-decoration: none; display: inline-block;}
+.basket-modal:hover {background-color: #686868;}
+div.documents {display:inline-block;text-align:center;width:20%;padding:3px;vertical-align:top;}
+blockquote.style2 {margin-top: 10px;margin-bottom: 10px;margin-left: 50px;padding-left: 15px;border-left: 3px solid #ccc;}
+table, td {text-align: center;border-bottom: 1px solid #ddd!important;border-top: 0px solid!important;border-right: 0px solid!important;border-left: 0px solid!important;}
+tr:nth-child(odd){background-color: #f2f2f2}	</style>
+</p>
+</section>
+</div>
+</div>
+
+<div id="block_5561" class="block">
+  <div class="block_content"><section class="ct-advert ct-advert-red">
+	<a href="https://albanytheatre.co.uk/brochure">			<h3>Mini-Brochure | Winter 2020</h3>
+	
+<span class="media image">
+  </span></a><a href="https://albanytheatre.co.uk/brochure" title="Mini Brochure Winter 2020 Thumbnail"><img src="albany_files/5dee4152-29e8-41f9-b19d-5dae0a5586a6.png" alt="" width="219" height="207"></a></section>
+</div>
+</div>
+
+<div id="block_3797" class="block">
+  <div class="block_content"><section class="ct-advert ct-advert-red">
+	<a href="https://albanytheatre.co.uk/comedy-club">			<h3>Comedy Club | Jan 10 | 8pm</h3>
+	
+<span class="media image">
+  <img src="albany_files/5e09e3ea-a144-4b75-b2ab-5f080a5586a6.png" alt="" width="219" height="207"></span></a></section>
+</div>
+</div>
+
+<div id="block_88" class="block">
+  <div class="block_content"><section class="ct-advert ct-advert-red">
+	<a href="https://albanytheatre.co.uk/beyond-therapy"></a></section>
+</div>
+</div>
+
+<div id="block_5096" class="block">
+  <div class="block_content"><section class="ct-standard-block ct-standard-block-white">
+				<h3>More Information</h3>
+		<p>
+	<a href="https://albanytheatre.co.uk/cookie-notice" rel="slugs">Cookies</a><br>
+	<a href="https://albanytheatre.co.uk/policy-notice" rel="slugs">Privacy</a><br>
+	<a href="https://albanytheatre.co.uk/terms-and-conditions" rel="slugs">Terms and Conditions</a></p>
+<p></p></section>
+</div>
+</div>
+					</aside>
+				</div>
+			</div>
+		</div>
+		<footer>
+			<hr class="yellow_rule">
+            <div class="yui3-g credits">
+                
+                        <div id="block_5434" class="yui3-u-1-3 block">
+                        <div class="block_content"><div>
+    <style type="text/css">
+FOOTER .credits P,FOOTER .credits SPAN,FOOTER .credits LI{margin-right:0px!important;}
+div.yui3-g.credits {padding-left:20px;padding-right:20px;}
+HTML{background:#FFF no-repeat 35% 0}
+HEADER{background:#FFF no-repeat 100% 0;position:relative}
+HEADER H1.sitename A {
+    width: 246px;
+    height: 152px;
+    padding-bottom: 10px;
+    background: url(/img/media-images/5/a/5ac77c3a-df30-459d-9537-1e620a520da4.png);
+    background-size: 75%;
+    top: 8px;
+    background-repeat: no-repeat;
+}
+
+.logo-icon{margin-bottom:8px;visibility:hidden;padding-bottom:30px;}
+.ct-homepage .queries H3{background:#686868;}
+.ct-homepage .featured-carousel {border-bottom:0px}
+.ct-homepage .featured-carousel SPAN.arrow{display:none;}
+.ct-advert-red H3{background:#771d33;}
+.yellow_rule {border-top: 5px solid #686868;}
+ARTICLE .featured {border-bottom: 0px solid}
+ARTICLE .featured SPAN.arrow {display:none;}
+.ct-standard-show A.btn-buy-tickets {background:#686868;}
+.ct-standard-show A.btn-buy-tickets:hover {background:#771d33;}
+HEADER .menu ul.sf-menu A {background: url(/img/media-images/5/9/59a6bd72-a6b8-44ea-a697-53980a520da4.jpg) repeat-x;}
+HEADER .contact DT {color: #686868;}
+.ct-standard-block H3 EM {color: #686868;}
+HEADER .contact {font-family: Helvetica;}
+.edit_bar A {background: #cccccc;}
+HEADER ul.header-utils-menu li a:hover{color:#686868}</style>
+<div style="width:35%;display:inline-block;">
+	<p>
+		<a href="https://albanytheatre.co.uk/about-us" rel="slugs">About Us</a></p>
+	<p>
+		<a href="https://albanytheatre.co.uk/contact-us" rel="slugs">Contact Us</a></p>
+	<p>
+		<a href="https://albanytheatre.co.uk/getting-here" rel="slugs">Getting Here</a></p>
+	<p>
+		<a href="https://albanytheatre.co.uk/box-office" rel="slugs">Box Office</a></p>
+</div>
+<div style="display:inline-block;">
+	<p>
+		<a href="https://albanytheatre.co.uk/volunteer" rel="slugs">Volunteering</a></p>
+	<p>
+		<a href="https://albanytheatre.co.uk/donations" rel="slugs">Donations</a></p>
+	<p>
+		<a href="https://albanytheatre.co.uk/news-and-blog" rel="slugs">News and Blog</a></p>
+	<p>
+		<a href="https://albanytheatre.co.uk/join-us" rel="slugs">Jobs</a></p>
+</div>
+<div id="fb-root">
+	&nbsp;</div>
+<script type="javascript">
+$(function() {
+  $('a[href][rel=external]').attr('target', '_blank');
+});
+</script><script>(function(d, s, id) { 
+  var js, fjs = d.getElementsByTagName(s)[0]; 
+  if (d.getElementById(id)) return; 
+  js = d.createElement(s); js.id = id; 
+  js.src = "//connect.facebook.net/en_GB/sdk.js#xfbml=1&version=v2.7"; 
+  fjs.parentNode.insertBefore(js, fjs); 
+}(document, 'script', 'facebook-jssdk'));</script><p>
+	<font size="3">The Albany Theatre</font><br>
+	Albany Road, Coventry, CV5 6JQ</p>
+</div>
+</div>
+                        </div>
+
+                        <div id="block_5435" class="yui3-u-1-3 block">
+                        <div class="block_content"><div>
+    <p style="text-align:center;padding-top: 112px;">
+	<font size="2">Box Office: 024 7699 8964<br>
+	<a href="mailto:info@albanytheatre.co.uk?subject=" rel="email">info@albanytheatre.co.uk</a><br>
+	Registered Charity No. 1151595</font></p>
+</div>
+</div>
+                        </div>
+
+                        <div id="block_5436" class="yui3-u-1-3 block">
+                        <div class="block_content"><div>
+    <p style="text-align:right">
+	Supported by:<br>
+	<a href="https://www.coventry.gov.uk/" target="_blank"><img src="albany_files/58a240da-a1e4-4d56-b05e-02210a520da4.png" style="display: inline-block; float: right; width: 99px; height: 60px; padding-top: 10px;"></a></p>
+</div>
+</div>
+                        </div>
+
+            </div>
+		</footer>
+	</div>
+	<script>
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+	ga('create', 'UA-115792454-1', 'albanytheatre.co.uk');
+	ga('send', 'pageview');
+
+	</script>
+	<script type="text/javascript" src="albany_files/crt1stz.js"></script>
+	<script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+	
+
+</body></html>

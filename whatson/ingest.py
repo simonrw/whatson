@@ -106,7 +106,7 @@ def fetch_shows_albany(theatre_config):
         except AttributeError:
             continue
 
-        title = elem.find("h4").find("a").text
+        title = elem.find("h4").find("a").text.strip()
         image_url = elem.find("img").attrs["src"]
         image_url = "".join([theatre_config["root_url"], image_url])
 
