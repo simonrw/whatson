@@ -1,12 +1,12 @@
 import psycopg2
-from psycopg2.extras import DictCursor
+from psycopg2.extras import RealDictCursor
 import os
 from dotenv import load_dotenv
 
 load_dotenv()
 
 
-DB = psycopg2.connect(os.environ["DATABASE_URL"], cursor_factory=DictCursor)
+DB = psycopg2.connect(os.environ["DATABASE_URL"], cursor_factory=RealDictCursor)
 
 
 def reset_database():
