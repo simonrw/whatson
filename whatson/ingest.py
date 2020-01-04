@@ -10,38 +10,12 @@ import os
 import requests
 from bs4 import BeautifulSoup
 from bs4.element import Tag
+from .db import DB, reset_database
 
 log = logging.getLogger("whatson")
 log.setLevel(logging.DEBUG)
 
 # Database management
-
-load_dotenv()
-
-DB = psycopg2.connect(os.environ["DATABASE_URL"])
-
-
-def reset_database():
-    with DB as conn:
-        cursor = conn.cursor()
-        cursor.execute("DROP TABLE IF EXISTS shows")
-        cursor.execute(
-            """CREATE TABLE shows (
-                id SERIAL PRIMARY KEY,
-                theatre VARCHAR(255) NOT NULL,
-                title VARCHAR(255) NOT NULL,
-                image_url VARCHAR(1024) NOT NULL,
-                link_url VARCHAR(1024) NOT NULL,
-                start_date DATE NOT NULL,
-                end_date DATE NOT NULL,
-                created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
-                )"""
-        )
-        cursor.execute(
-            """CREATE UNIQUE INDEX _idx_shows_theatre_title
-                ON shows (theatre, title)
-                """
-        )
 
 
 def upload(theatre, show):
