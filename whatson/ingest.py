@@ -10,6 +10,7 @@ import argparse
 import configparser
 import datetime
 import logging
+from urllib.parse import urlencode
 import re
 from bs4.element import Tag
 from bs4 import BeautifulSoup
@@ -89,6 +90,16 @@ def _fetch_html(url, method="requests"):
     raise NotImplementedError()
 
 
+# Regex replacer to remove 1st/2nd/3rd/4th etc.
+DATE_REPLACER = re.compile(r"\b([0123]?[0-9])(st|th|nd|rd)\b")
+CURRENT_YEAR = datetime.date.today().year
+
+
+def weekday_replacer(text):
+    """Replace Thurs -> Thu, Tues -> Tue"""
+    return text.replace("Thurs", "Thu").replace("Tues", "Tue")
+
+
 def fetch_shows(theatre_config):
     """Given a theatre config, fetch the shows and yield each show"""
     LOG.info("fetching %s", theatre_config["url"])
@@ -100,6 +111,7 @@ def fetch_shows(theatre_config):
         "hippodrome": fetch_shows_hippodrome,
         "resortsworld-arena": fetch_shows_resortsworld,
         "arena-birmingham": fetch_shows_arena_birmingham,
+        "artrix": fetch_shows_artrix,
     }
 
     try:
@@ -167,9 +179,6 @@ def fetch_shows_belgrade(theatre_config):
     month = None
     year = None
 
-    # Regex replacer to remove 1st/2nd/3rd/4th etc.
-    date_replacer = re.compile(r"\b([0123]?[0-9])(st|th|nd|rd)\b")
-
     for elem in container.children:
         if not isinstance(elem, Tag):
             continue
@@ -206,7 +215,7 @@ def fetch_shows_belgrade(theatre_config):
 
         # Parse the date from this panel. First we replace instances of e.g.
         # 1st -> 1 so that strptime can parse the day and month
-        date_text = date_replacer.sub(r"\1", date_text)
+        date_text = DATE_REPLACER.sub(r"\1", date_text)
 
         def parse_single_date(text):
             try:
@@ -313,8 +322,6 @@ def fetch_shows_hippodrome(theatre_config):
     """Fetch shows from the Hippodrome Theatre"""
     url = theatre_config["url"]
 
-    current_year = datetime.date.today().year
-
     while True:
         html = _fetch_html(url)
         soup = BeautifulSoup(html, "lxml")
@@ -342,7 +349,7 @@ def fetch_shows_hippodrome(theatre_config):
                 except ValueError as exc:
                     if "does not match format" in str(exc):
                         # We do not have the year, so assume the current year
-                        full_date_text = f"{txt} {current_year}"
+                        full_date_text = f"{txt} {CURRENT_YEAR}"
                         dtime = datetime.datetime.strptime(
                             full_date_text, "%a %d %b %Y"
                         ).date()
@@ -486,6 +493,76 @@ def fetch_shows_arena_birmingham(theatre_config):
             "start_date": start_date,
             "end_date": end_date,
         }
+
+
+def fetch_shows_artrix(theatre_config):
+    page = 1
+
+    # Loop over all pages
+    while True:
+        params = urlencode({"page": page})
+        url = theatre_config["url"] + "?" + params
+
+        html = _fetch_html(url)
+        soup = BeautifulSoup(html, "lxml")
+
+        container = soup.find("ul", id="gridview-new")
+        events = container.find_all("li", class_="Exhib")
+        if not events:
+            # We must have reached the end of the pages
+            break
+
+        for event in events:
+            link_tag = event.find("div", class_="imgBox_Intrment").find("a")
+            link_url = "".join([theatre_config["root_url"], link_tag.attrs["href"]])
+
+            image_url = link_tag.find("img").attrs["src"]
+
+            title = event.find("div", class_="intrment_info").find("a").text
+
+            date_text = event.find("div", class_="postDate_l").text
+
+            def parse_date_part(text, end_date=None):
+                text = weekday_replacer(DATE_REPLACER.sub(r"\1", text))
+                try:
+                    date = datetime.datetime.strptime(text, "%a %d %b %Y").date()
+                except ValueError as exc:
+                    if "does not match format" in str(exc):
+                        # No year available
+                        try:
+                            date = datetime.datetime.strptime(
+                                f"{text} {CURRENT_YEAR}", "%a %d %b %Y"
+                            ).date()
+                        except ValueError as exc:
+                            if "does not match format" in str(exc):
+                                # no month available, we must get the month from the end date
+                                date = datetime.datetime.strptime(
+                                    f"{text} {end_date.month} {CURRENT_YEAR}",
+                                    "%a %d %m %Y",
+                                ).date()
+
+                return date
+
+            if "-" in date_text:
+                parts = [part.strip() for part in date_text.split("-")]
+                LOG.warning("unsupported: %s", date_text)
+
+                end_date = parse_date_part(parts[1])
+                start_date = parse_date_part(parts[0], end_date=end_date)
+            else:
+                start_date = parse_date_part(date_text)
+                end_date = start_date
+
+            yield {
+                "title": title,
+                "image_url": image_url,
+                "link_url": link_url,
+                "start_date": start_date,
+                "end_date": end_date,
+            }
+
+        # Handle pagination
+        page += 1
 
 
 def load_config(fptr):

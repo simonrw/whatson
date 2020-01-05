@@ -144,3 +144,34 @@ def test_arena_bham(client):
     assert shows[-1]["start_date"] == datetime.date(2020, 12, 11)
     assert shows[-1]["end_date"] == datetime.date(2020, 12, 11)
     assert shows[-1]["title"] == "Il Divo"
+
+
+@mock.patch("whatson.ingest._fetch_html")
+def test_artrix(client):
+    with open("testing/responses/artrix_1.html") as infile:
+        resp1 = infile.read()
+
+    with open("testing/responses/artrix_2.html") as infile:
+        resp2 = infile.read()
+
+    with open("testing/responses/artrix_3.html") as infile:
+        resp3 = infile.read()
+
+    client.side_effect = [resp1, resp2, resp3]
+
+    config = {
+        "name": "artrix",
+        "root_url": "",
+        "url": "",
+    }
+
+    shows = list(ingest.fetch_shows(config))
+
+    assert len(shows) == 32
+    assert shows[0]["start_date"] == datetime.date(2019, 11, 5)
+    assert shows[0]["end_date"] == datetime.date(2020, 1, 5)
+    assert shows[0]["title"] == "KATHLEEN WATSON AND LYNNE SAWYER  - INSPIRE BY NATURE"
+
+    assert shows[-1]["start_date"] == datetime.date(2020, 1, 18)
+    assert shows[-1]["end_date"] == datetime.date(2020, 1, 18)
+    assert shows[-1]["title"] == "Polar Squad"
