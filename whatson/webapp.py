@@ -70,6 +70,7 @@ def get_by_month():
                 """SELECT * FROM shows
                     WHERE total_months(start_date) <= total_months(%(date_ref)s)
                     AND total_months(end_date) >= total_months(%(date_ref)s)
+                    ORDER BY start_date ASC
                     """,
                 {"date_ref": datetime.date(year, month, 1)},
             )
