@@ -65,15 +65,15 @@ def get_by_month():
     year = int(request.json["year"])
 
     with DB as conn:
-        cursor = conn.cursor()
-        cursor.execute(
-            """SELECT * FROM shows
-                WHERE total_months(start_date) <= total_months(%(date_ref)s)
-                AND total_months(end_date) >= total_months(%(date_ref)s)
-                """,
+        with conn.cursor() as cursor:
+            cursor.execute(
+                """SELECT * FROM shows
+                    WHERE total_months(start_date) <= total_months(%(date_ref)s)
+                    AND total_months(end_date) >= total_months(%(date_ref)s)
+                    """,
                 {"date_ref": datetime.date(year, month, 1)},
-        )
-        rows = cursor.fetchall()
+            )
+            rows = cursor.fetchall()
 
     return jsonify_ok(shows=[ShowPresenter(show) for show in rows])
 
@@ -87,20 +87,20 @@ class DateMonthYear(NamedTuple):
 @json_errors
 def get_months():
     with DB as conn:
-        cursor = conn.cursor()
-        cursor.execute(
-            """SELECT
-                        EXTRACT(MONTH FROM start_date)::int AS month,
-                        EXTRACT(YEAR FROM start_date)::int AS year
-                    FROM shows
-                    UNION
-                    SELECT
-                        EXTRACT(MONTH FROM end_date)::int AS month,
-                        EXTRACT(YEAR FROM end_date)::int AS year
-                    FROM shows
-                ORDER BY year, month
-                """
-        )
-        rows = cursor.fetchall()
+        with conn.cursor() as cursor:
+            cursor.execute(
+                """SELECT
+                            EXTRACT(MONTH FROM start_date)::int AS month,
+                            EXTRACT(YEAR FROM start_date)::int AS year
+                        FROM shows
+                        UNION
+                        SELECT
+                            EXTRACT(MONTH FROM end_date)::int AS month,
+                            EXTRACT(YEAR FROM end_date)::int AS year
+                        FROM shows
+                    ORDER BY year, month
+                    """
+            )
+            rows = cursor.fetchall()
 
     return jsonify_ok(dates=rows)
