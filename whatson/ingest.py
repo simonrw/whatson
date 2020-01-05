@@ -60,12 +60,18 @@ def fetch_shows(theatre_config):
     """Given a theatre config, fetch the shows and yield each show"""
     log.info("fetching %s", theatre_config["url"])
 
-    if theatre_config["name"] == "albany":
-        return fetch_shows_albany(theatre_config)
-    elif theatre_config["name"] == "belgrade":
-        return fetch_shows_belgrade(theatre_config)
-    else:
+    fetchers = {
+        "albany": fetch_shows_albany,
+        "belgrade": fetch_shows_belgrade,
+        "symphony-hall": fetch_shows_symphony_hall,
+    }
+
+    try:
+        fetcher = fetchers[theatre_config["name"]]
+    except KeyError:
         raise NotImplementedError(theatre_config["name"])
+    else:
+        return fetcher(theatre_config)
 
 
 def fetch_shows_albany(theatre_config):
@@ -201,6 +207,67 @@ def fetch_shows_belgrade(theatre_config):
             "start_date": start_date,
             "end_date": end_date,
         }
+
+
+def fetch_shows_symphony_hall(theatre_config):
+    url = theatre_config["url"]
+
+    # Loop over all pages
+    while True:
+        html = _fetch_html(url)
+        soup = BeautifulSoup(html, "lxml")
+
+        container = soup.find("ul", class_="grid cf")
+        assert len(container.contents) <= 16
+        for elem in container.contents:
+            # The title is in capitals so we must turn this into a nicer
+            # format. Note we should treat each word separately rather than
+            # calling the `.title` method as this does not support embedded
+            # apostrophes (https://stackoverflow.com/a/1549644)
+            raw_title = elem.find("h3").text
+            title = " ".join(w.capitalize() for w in raw_title.split())
+
+            link_url = elem.find("a", class_="event-block").attrs["href"]
+            image_url = (
+                elem.find("img", class_="o-image__full").attrs["data-srcset"].split()[0]
+            )
+
+            date_container = elem.find("span", class_="event-block__time")
+            times = date_container.find_all("time")
+            if len(times) == 1:
+                # Simple case, only a single time available
+                start_date = datetime.datetime.fromisoformat(
+                    times[0].attrs["datetime"]
+                ).date()
+                end_date = start_date
+            elif len(times) == 2:
+                # We have start time and end time
+                assert times[0].attrs["itemprop"] == "startDate"
+                assert times[1].attrs["itemprop"] == "endDate"
+
+                start_date = datetime.datetime.fromisoformat(
+                    times[0].attrs["datetime"]
+                ).date()
+                end_date = datetime.datetime.fromisoformat(
+                    times[1].attrs["datetime"]
+                ).date()
+            else:
+                raise NotImplementedError(f"cannot parse dates from {date_container}")
+
+            yield {
+                "title": title,
+                "image_url": image_url,
+                "link_url": link_url,
+                "start_date": start_date,
+                "end_date": end_date,
+            }
+
+        # Handle pagination
+        next_link = soup.find("a", class_="pagination__link--next")
+        if next_link and "disabled" not in next_link.attrs["class"]:
+            url = next_link.attrs["href"]
+        else:
+            break
 
 
 def load_config(fptr):
