@@ -468,7 +468,9 @@ def fetch_shows_arena_birmingham(theatre_config):
             except ValueError as exc:
                 if "does not match format" in str(exc):
                     augmented_date = f"{parts[0]} {end_date.month} {end_date.year}"
-                    start_date = datetime.datetime.strptime(augmented_date, "%d %m %Y").date()
+                    start_date = datetime.datetime.strptime(
+                        augmented_date, "%d %m %Y"
+                    ).date()
                 else:
                     LOG.warning("unhandled exception: %s", exc)
                     raise exc
