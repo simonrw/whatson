@@ -64,6 +64,7 @@ def fetch_shows(theatre_config):
         "albany": fetch_shows_albany,
         "belgrade": fetch_shows_belgrade,
         "symphony-hall": fetch_shows_symphony_hall,
+        "hippodrome": fetch_shows_hippodrome,
     }
 
     try:
@@ -265,6 +266,76 @@ def fetch_shows_symphony_hall(theatre_config):
         # Handle pagination
         next_link = soup.find("a", class_="pagination__link--next")
         if next_link and "disabled" not in next_link.attrs["class"]:
+            url = next_link.attrs["href"]
+        else:
+            break
+
+
+def fetch_shows_hippodrome(theatre_config):
+    url = theatre_config["url"]
+
+    current_year = datetime.date.today().year
+
+    while True:
+        html = _fetch_html(url)
+        soup = BeautifulSoup(html, "lxml")
+        container = soup.find("ul", class_="main-events-list")
+
+        for elem in container.find_all("li", class_="events-list-item"):
+            item = elem.find("div", class_="performance-listing")
+
+            try:
+                image_url = elem.find("a", class_="block").find("img").attrs["src"]
+            except AttributeError:
+                image_url = ""
+
+            link_url = item.find("a", class_="block").attrs["href"]
+
+            details = item.find("div", class_="event-details")
+            title = details.find("h5", class_="performance-listing-title").text
+
+            date_text = details.find("p", class_="performance-listing-date").text
+
+            def parse_single_date(txt):
+                # Try parsing with the year
+                try:
+                    d = datetime.datetime.strptime(txt, "%a %d %b %Y").date()
+                except ValueError as e:
+                    if "does not match format" in str(e):
+                        # We do not have the year, so assume the current year
+                        full_date_text = f"{txt} {current_year}"
+                        d = datetime.datetime.strptime(
+                            full_date_text, "%a %d %b %Y"
+                        ).date()
+                    else:
+                        raise
+
+                return d
+
+            log.debug("parsing date %s", date_text)
+
+            if "-" in date_text or "&" in date_text:
+                if "-" in date_text:
+                    parts = [part.strip() for part in date_text.split("-")]
+                elif "&" in date_text:
+                    parts = [part.strip() for part in date_text.split("&")]
+
+                start_date = parse_single_date(parts[0])
+                end_date = parse_single_date(parts[1])
+            else:
+                start_date = parse_single_date(date_text)
+                end_date = start_date
+
+            yield {
+                "title": title,
+                "image_url": image_url,
+                "link_url": link_url,
+                "start_date": start_date,
+                "end_date": end_date,
+            }
+
+        next_link = soup.find("a", class_="next")
+        if next_link:
             url = next_link.attrs["href"]
         else:
             break

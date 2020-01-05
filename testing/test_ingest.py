@@ -71,3 +71,31 @@ def test_symphony_hall(client):
     assert shows[-1]["start_date"] == datetime.date(2020, 1, 28)
     assert shows[-1]["end_date"] == datetime.date(2020, 1, 28)
     assert shows[-1]["title"] == "Echo Eternal Youth Arts Festival 2020: Horizons"
+
+
+@mock.patch("whatson.ingest._fetch_html")
+def test_hippodrome(client):
+    with open("testing/responses/hippodrome_1.html") as infile:
+        resp1 = infile.read()
+
+    with open("testing/responses/hippodrome_2.html") as infile:
+        resp2 = infile.read()
+
+    client.side_effect = [resp1, resp2]
+
+    config = {
+        "name": "hippodrome",
+        "root_url": "https://www.birminghamhippodrome.com/",
+        "url": "https://www.birminghamhippodrome.com/whats-on/",
+    }
+
+    shows = list(ingest.fetch_shows(config))
+
+    assert len(shows) == 32
+    assert shows[0]["start_date"] == datetime.date(2020, 1, 5)
+    assert shows[0]["end_date"] == datetime.date(2020, 2, 2)
+    assert shows[0]["title"] == "Snow White & the Seven Dwarfs"
+
+    assert shows[-1]["start_date"] == datetime.date(2020, 3, 27)
+    assert shows[-1]["end_date"] == datetime.date(2020, 3, 28)
+    assert shows[-1]["title"] == "DX - Mariposa"
