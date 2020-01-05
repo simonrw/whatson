@@ -64,16 +64,14 @@ def get_by_month():
     month = int(request.json["month"])
     year = int(request.json["year"])
 
-    date_ref = datetime.date(year, month, 1)
-
     with DB as conn:
         cursor = conn.cursor()
         cursor.execute(
             """SELECT * FROM shows
-                WHERE total_months(start_date) <= total_months(%s)
-                AND total_months(end_date) >= total_months(%s)
+                WHERE total_months(start_date) <= total_months(%(date_ref)s)
+                AND total_months(end_date) >= total_months(%(date_ref)s)
                 """,
-            (date_ref, date_ref),
+                {"date_ref": datetime.date(year, month, 1)},
         )
         rows = cursor.fetchall()
 
