@@ -79,11 +79,6 @@ def get_by_month():
     return jsonify_ok(shows=[ShowPresenter(show) for show in rows])
 
 
-class DateMonthYear(NamedTuple):
-    month: int
-    year: int
-
-
 @app.route("/api/months", methods=["GET"])
 @json_errors
 def get_months():

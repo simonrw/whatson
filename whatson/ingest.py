@@ -1,26 +1,33 @@
-from dotenv import load_dotenv
-import logging
-import psycopg2
-from psycopg2.errors import UniqueViolation
+"""
+Whatson Ingest
+
+This code handles scraping the theatres defined in the config file, and
+ingesting them into the database pointed to by the `DATABASE_URL` environment
+variable.
+"""
+
 import argparse
-import datetime
 import configparser
+import datetime
+import logging
 import re
-import os
-import requests
-from bs4 import BeautifulSoup
 from bs4.element import Tag
+from bs4 import BeautifulSoup
+from psycopg2.errors import UniqueViolation  # pylint: disable=no-name-in-module
+from selenium import webdriver
+from selenium.webdriver.firefox.options import Options
+import requests
 from .db import DB, reset_database
 
-log = logging.getLogger("whatson")
-log.setLevel(logging.DEBUG)
+LOG = logging.getLogger("whatson")
+LOG.setLevel(logging.DEBUG)
 
 # Database management
 
 
 def upload(theatre, show):
     """Given a show extracted from the theatre page, upload the show to the database"""
-    log.info("uploading %s", show)
+    LOG.info("uploading %s - %s", show["title"], theatre)
     with DB as conn:
         cursor = conn.cursor()
         try:
@@ -38,9 +45,10 @@ def upload(theatre, show):
             )
         except UniqueViolation:
             # We have added this show already
-            log.debug("duplicate show %s found, skipping", show)
+            LOG.debug("duplicate show %s found, skipping", show["title"])
             return
         except:
+            LOG.exception("unhandled exception")
             raise
 
 
@@ -49,22 +57,48 @@ CLIENT = requests.Session()
 CLIENT.headers["User-Agent"] = "whatson/0.1.0"
 
 
-def _fetch_html(url):
-    r = CLIENT.get(url)
-    r.raise_for_status()
+# Lazy initialisation
+# XXX this will cause a race condition if we use multiple threads around this (mutex?)
+DRIVER = None
 
-    return r.text
+
+def _fetch_html(url, method="requests"):
+    global DRIVER
+
+    allowed_methods = {"requests", "selenium"}
+    if method not in allowed_methods:
+        raise ValueError(
+            "fetch method not supported; {} not in {}".format(method, allowed_methods)
+        )
+
+    if method == "requests":
+        response = CLIENT.get(url)
+        response.raise_for_status()
+        return response.text
+
+    if method == "selenium":
+        # Lazy initialisation of driver
+        if DRIVER is None:
+            options = Options()
+            options.headless = True
+            DRIVER = webdriver.Firefox(options=options)
+
+        DRIVER.get(url)
+        return DRIVER.page_source
+
+    raise NotImplementedError()
 
 
 def fetch_shows(theatre_config):
     """Given a theatre config, fetch the shows and yield each show"""
-    log.info("fetching %s", theatre_config["url"])
+    LOG.info("fetching %s", theatre_config["url"])
 
     fetchers = {
         "albany": fetch_shows_albany,
         "belgrade": fetch_shows_belgrade,
         "symphony-hall": fetch_shows_symphony_hall,
         "hippodrome": fetch_shows_hippodrome,
+        "resortsworld-arena": fetch_shows_resortsworld,
     }
 
     try:
@@ -76,6 +110,7 @@ def fetch_shows(theatre_config):
 
 
 def fetch_shows_albany(theatre_config):
+    """Fetch shows from the Albany Theatre"""
     html = _fetch_html(theatre_config["url"])
     soup = BeautifulSoup(html, "lxml")
 
@@ -102,8 +137,8 @@ def fetch_shows_albany(theatre_config):
             parts = [part.strip() for part in date_str.split("-")]
             end_date = datetime.datetime.strptime(parts[1], "%d %B %Y").date()
 
-            dm = datetime.datetime.strptime(parts[0], "%d %B").date()
-            start_date = datetime.date(end_date.year, dm.month, dm.day)
+            date_month = datetime.datetime.strptime(parts[0], "%d %B").date()
+            start_date = datetime.date(end_date.year, date_month.month, date_month.day)
         else:
             # One date therefore start_date = end_date
             start_date = datetime.datetime.strptime(date_str, "%d %B %Y").date()
@@ -119,6 +154,7 @@ def fetch_shows_albany(theatre_config):
 
 
 def fetch_shows_belgrade(theatre_config):
+    """Fetch shows from the Belgrade Theatre"""
     html = _fetch_html(theatre_config["url"])
     soup = BeautifulSoup(html, "lxml")
 
@@ -144,7 +180,7 @@ def fetch_shows_belgrade(theatre_config):
             month = tmp_date.month
             year = tmp_date.year
 
-            log.info("found month/year panel, month = %s, year = %s", month, year)
+            LOG.info("found month/year panel, month = %s, year = %s", month, year)
             continue
 
         if "class" not in elem.attrs:
@@ -174,8 +210,8 @@ def fetch_shows_belgrade(theatre_config):
         def parse_single_date(text):
             try:
                 tmp_date = datetime.datetime.strptime(text, "%d %B").date()
-            except ValueError as e:
-                if "day is out of range for month" in str(e):
+            except ValueError as exc:
+                if "day is out of range for month" in str(exc):
                     # Leap year? Try parsing with the current year
                     text = f"{text} {year}"
                     tmp_date = datetime.datetime.strptime(text, "%d %B %Y").date()
@@ -191,7 +227,7 @@ def fetch_shows_belgrade(theatre_config):
             start_date = parse_single_date(date_text)
             end_date = start_date
 
-        log.debug("DATES: %s %s", start_date, end_date)
+        LOG.debug("DATES: %s %s", start_date, end_date)
 
         # Check if the start date and end date make sense. The start date must
         # be the same as the date panel. If this is not the case, something is
@@ -211,6 +247,7 @@ def fetch_shows_belgrade(theatre_config):
 
 
 def fetch_shows_symphony_hall(theatre_config):
+    """Fetch shows from Symphony Hall"""
     url = theatre_config["url"]
 
     # Loop over all pages
@@ -272,6 +309,7 @@ def fetch_shows_symphony_hall(theatre_config):
 
 
 def fetch_shows_hippodrome(theatre_config):
+    """Fetch shows from the Hippodrome Theatre"""
     url = theatre_config["url"]
 
     current_year = datetime.date.today().year
@@ -299,20 +337,20 @@ def fetch_shows_hippodrome(theatre_config):
             def parse_single_date(txt):
                 # Try parsing with the year
                 try:
-                    d = datetime.datetime.strptime(txt, "%a %d %b %Y").date()
-                except ValueError as e:
-                    if "does not match format" in str(e):
+                    dtime = datetime.datetime.strptime(txt, "%a %d %b %Y").date()
+                except ValueError as exc:
+                    if "does not match format" in str(exc):
                         # We do not have the year, so assume the current year
                         full_date_text = f"{txt} {current_year}"
-                        d = datetime.datetime.strptime(
+                        dtime = datetime.datetime.strptime(
                             full_date_text, "%a %d %b %Y"
                         ).date()
                     else:
                         raise
 
-                return d
+                return dtime
 
-            log.debug("parsing date %s", date_text)
+            LOG.debug("parsing date %s", date_text)
 
             if "-" in date_text or "&" in date_text:
                 if "-" in date_text:
@@ -341,6 +379,55 @@ def fetch_shows_hippodrome(theatre_config):
             break
 
 
+def fetch_shows_resortsworld(theatre_config):
+    html = _fetch_html(theatre_config["url"], method="selenium")
+    soup = BeautifulSoup(html, "lxml")
+
+    container = soup.find("div", id="home-results")
+    if not container:
+        raise ValueError("cannot find container element in HTML")
+
+    events = container.find_all("div", class_="event-card")
+    if not events:
+        raise ValueError("cannot find event items")
+
+    for event in events:
+        link_tag = event.find("a", class_="eventhref")
+        title = link_tag.find("span", class_="title").text
+        link_url = "".join([theatre_config["root_url"], link_tag.attrs["href"]])
+        image_url = event.find("img", class_="lazy").attrs["src"]
+        date_text = event.find("span", class_="date").text
+
+        if "-" in date_text:
+            parts = [part.strip() for part in date_text.split("-")]
+            end_date = datetime.datetime.strptime(parts[1], "%d %B %Y").date()
+
+            try:
+                # Assume day month no year
+                augmented_date = f"{parts[0]} {end_date.year}"
+                start_date = datetime.datetime.strptime(
+                    augmented_date, "%d %B %Y"
+                ).date()
+            except ValueError:
+                # Assume day no month no year
+                augmented_date = f"{parts[0]} {end_date.month} {end_date.year}"
+                start_date = datetime.datetime.strptime(
+                    augmented_date, "%d %m %Y"
+                ).date()
+
+        else:
+            start_date = datetime.datetime.strptime(date_text, "%d %B %Y").date()
+            end_date = start_date
+
+        yield {
+            "title": title,
+            "image_url": image_url,
+            "link_url": link_url,
+            "start_date": start_date,
+            "end_date": end_date,
+        }
+
+
 def load_config(fptr):
     """Load the list of theatres from the config file"""
     parser = configparser.ConfigParser()
@@ -358,6 +445,7 @@ def load_config(fptr):
 
 
 def main():
+    """The entrypoint, called by `whatson-ingest`"""
     logging.basicConfig(level=logging.WARNING)
 
     # Set up the command line parser
@@ -387,7 +475,7 @@ def main():
     config = load_config(args.config)
     for theatre_config in config:
         if not theatre_config["active"]:
-            log.info("Theatre %s is not active, skipping", theatre_config["name"])
+            LOG.info("Theatre %s is not active, skipping", theatre_config["name"])
             continue
 
         shows = fetch_shows(theatre_config)

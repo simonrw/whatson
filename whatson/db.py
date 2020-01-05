@@ -1,15 +1,26 @@
+"""
+Whatson db
+
+This module handles talking to Postgres via `psycopg2`.
+"""
+
+import logging
+import os
 import psycopg2
 from psycopg2.extras import RealDictCursor
-import os
 from dotenv import load_dotenv
 
 load_dotenv()
+
+LOG = logging.getLogger("whatson.db")
+LOG.setLevel(logging.DEBUG)
 
 
 DB = psycopg2.connect(os.environ["DATABASE_URL"], cursor_factory=RealDictCursor)
 
 
 def reset_database():
+    """Resets the database to its basic schema"""
     with DB as conn:
         cursor = conn.cursor()
         cursor.execute("DROP TABLE IF EXISTS shows")
@@ -18,8 +29,8 @@ def reset_database():
                 id SERIAL PRIMARY KEY,
                 theatre VARCHAR(255) NOT NULL,
                 title VARCHAR(255) NOT NULL,
-                image_url VARCHAR(1024) NOT NULL,
-                link_url VARCHAR(1024) NOT NULL,
+                image_url TEXT NOT NULL,
+                link_url TEXT NOT NULL,
                 start_date DATE NOT NULL,
                 end_date DATE NOT NULL,
                 created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP

@@ -44,7 +44,6 @@ def test_belgrade(client):
     assert shows[-1]["title"] == "Beauty and the Beast"
 
 
-
 @mock.patch("whatson.ingest._fetch_html")
 def test_symphony_hall(client):
     with open("testing/responses/symphony_hall_1.html") as infile:
@@ -99,3 +98,26 @@ def test_hippodrome(client):
     assert shows[-1]["start_date"] == datetime.date(2020, 3, 27)
     assert shows[-1]["end_date"] == datetime.date(2020, 3, 28)
     assert shows[-1]["title"] == "DX - Mariposa"
+
+
+@mock.patch("whatson.ingest._fetch_html")
+def test_resortsworld(client):
+    with open("testing/responses/resortsworld.html") as infile:
+        client.return_value = infile.read()
+
+    config = {
+        "name": "resortsworld-arena",
+        "root_url": "https://www.resortsworldarena.co.uk/",
+        "url": "https://www.resortsworldarena.co.uk/whats-on/",
+    }
+
+    shows = list(ingest.fetch_shows(config))
+
+    assert len(shows) == 28
+    assert shows[0]["start_date"] == datetime.date(2020, 1, 31)
+    assert shows[0]["end_date"] == datetime.date(2020, 2, 1)
+    assert shows[0]["title"] == "The Arenacross Tour 2020"
+
+    assert shows[-1]["start_date"] == datetime.date(2020, 11, 21)
+    assert shows[-1]["end_date"] == datetime.date(2020, 11, 21)
+    assert shows[-1]["title"] == "Free Radio Hits Live 2020"
