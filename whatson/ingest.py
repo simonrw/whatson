@@ -99,6 +99,7 @@ def fetch_shows(theatre_config):
         "symphony-hall": fetch_shows_symphony_hall,
         "hippodrome": fetch_shows_hippodrome,
         "resortsworld-arena": fetch_shows_resortsworld,
+        "arena-birmingham": fetch_shows_arena_birmingham,
     }
 
     try:
@@ -414,6 +415,63 @@ def fetch_shows_resortsworld(theatre_config):
                 start_date = datetime.datetime.strptime(
                     augmented_date, "%d %m %Y"
                 ).date()
+
+        else:
+            start_date = datetime.datetime.strptime(date_text, "%d %B %Y").date()
+            end_date = start_date
+
+        yield {
+            "title": title,
+            "image_url": image_url,
+            "link_url": link_url,
+            "start_date": start_date,
+            "end_date": end_date,
+        }
+
+
+def fetch_shows_arena_birmingham(theatre_config):
+    html = _fetch_html(theatre_config["url"], method="selenium")
+    soup = BeautifulSoup(html, "lxml")
+
+    supercontainer = soup.find("div", class_="content-area")
+    if supercontainer is None:
+        raise ValueError("cannot find supercontainer in HTML content")
+    container = supercontainer.find("div", class_="events-wrap")
+
+    events = container.find_all("div", class_="event-card")
+    if not events:
+        raise ValueError("cannot find events")
+
+    for event in events:
+        link_tag = event.find("a", class_="eventhref")
+        link_url = "".join([theatre_config["root_url"], link_tag.attrs["href"]])
+
+        title = event.find("span", class_="title").text
+
+        image_url = (
+            event.find("div", class_="image").find("img", class_="lazy").attrs["src"]
+        )
+
+        date_text = (
+            event.find("div", class_="information").find("span", class_="date").text
+        )
+
+        if "-" in date_text:
+            LOG.warning("unhandled date: %s", date_text)
+            parts = [part.strip() for part in date_text.split("-")]
+            end_date = datetime.datetime.strptime(parts[1], "%d %B %Y").date()
+
+            # Assume the start date is the full format
+            try:
+                augmented_date = f"{parts[0]} {end_date.year}"
+                tmp_date = datetime.datetime.strptime(augmented_date, "%d %B %Y").date()
+            except ValueError as exc:
+                if "does not match format" in str(exc):
+                    augmented_date = f"{parts[0]} {end_date.month} {end_date.year}"
+                    start_date = datetime.datetime.strptime(augmented_date, "%d %m %Y").date()
+                else:
+                    LOG.warning("unhandled exception: %s", exc)
+                    raise exc
 
         else:
             start_date = datetime.datetime.strptime(date_text, "%d %B %Y").date()

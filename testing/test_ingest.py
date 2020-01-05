@@ -10,8 +10,8 @@ def test_albany(client):
 
     config = {
         "name": "albany",
-        "root_url": "https://albanytheatre.co.uk/",
-        "url": "https://albanytheatre.co.uk/whats-on/",
+        "root_url": "",
+        "url": "",
     }
 
     shows = list(ingest.fetch_shows(config))
@@ -28,8 +28,8 @@ def test_belgrade(client):
 
     config = {
         "name": "belgrade",
-        "root_url": "http://www.belgrade.co.uk/",
-        "url": "http://www.belgrade.co.uk/whats-on/",
+        "root_url": "",
+        "url": "",
     }
 
     shows = list(ingest.fetch_shows(config))
@@ -56,8 +56,8 @@ def test_symphony_hall(client):
 
     config = {
         "name": "symphony-hall",
-        "root_url": "https://www.thsh.co.uk/",
-        "url": "https://www.thsh.co.uk/whats-on/",
+        "root_url": "",
+        "url": "",
     }
 
     shows = list(ingest.fetch_shows(config))
@@ -84,8 +84,8 @@ def test_hippodrome(client):
 
     config = {
         "name": "hippodrome",
-        "root_url": "https://www.birminghamhippodrome.com/",
-        "url": "https://www.birminghamhippodrome.com/whats-on/",
+        "root_url": "",
+        "url": "",
     }
 
     shows = list(ingest.fetch_shows(config))
@@ -107,8 +107,8 @@ def test_resortsworld(client):
 
     config = {
         "name": "resortsworld-arena",
-        "root_url": "https://www.resortsworldarena.co.uk/",
-        "url": "https://www.resortsworldarena.co.uk/whats-on/",
+        "root_url": "",
+        "url": "",
     }
 
     shows = list(ingest.fetch_shows(config))
@@ -121,3 +121,26 @@ def test_resortsworld(client):
     assert shows[-1]["start_date"] == datetime.date(2020, 11, 21)
     assert shows[-1]["end_date"] == datetime.date(2020, 11, 21)
     assert shows[-1]["title"] == "Free Radio Hits Live 2020"
+
+
+@mock.patch("whatson.ingest._fetch_html")
+def test_arena_bham(client):
+    with open("testing/responses/arena_birmingham.html") as infile:
+        client.return_value = infile.read()
+
+    config = {
+        "name": "arena-birmingham",
+        "root_url": "",
+        "url": "",
+    }
+
+    shows = list(ingest.fetch_shows(config))
+
+    assert len(shows) == 61
+    assert shows[0]["start_date"] == datetime.date(2020, 1, 16)
+    assert shows[0]["end_date"] == datetime.date(2020, 1, 19)
+    assert shows[0]["title"] == "Strictly Come Dancing The Live Tour 2020"
+
+    assert shows[-1]["start_date"] == datetime.date(2020, 12, 11)
+    assert shows[-1]["end_date"] == datetime.date(2020, 12, 11)
+    assert shows[-1]["title"] == "Il Divo"
