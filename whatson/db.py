@@ -30,3 +30,11 @@ def reset_database():
                 ON shows (theatre, title)
                 """
         )
+
+        cursor.execute(
+            """CREATE OR REPLACE FUNCTION total_months(date)
+            RETURNS int AS
+                'select (extract(year from $1) * 12 + extract(month from $1))::int'
+                    language sql immutable
+            """
+        )

@@ -2,6 +2,7 @@ from flask import jsonify, Flask, render_template, request
 import json
 from typing import NamedTuple
 from .db import DB
+import datetime
 from functools import wraps
 
 
@@ -63,16 +64,16 @@ def get_by_month():
     month = int(request.json["month"])
     year = int(request.json["year"])
 
+    date_ref = datetime.date(year, month, 1)
+
     with DB as conn:
         cursor = conn.cursor()
         cursor.execute(
             """SELECT * FROM shows
-                WHERE EXTRACT(MONTH FROM start_date) >= %s
-                AND EXTRACT(YEAR FROM start_date) >= %s
-                AND EXTRACT(MONTH FROM end_date) <= %s
-                AND EXTRACT(YEAR FROM end_date) <= %s
+                WHERE total_months(start_date) <= total_months(%s)
+                AND total_months(end_date) >= total_months(%s)
                 """,
-            (month, year, month, year),
+            (date_ref, date_ref),
         )
         rows = cursor.fetchall()
 
