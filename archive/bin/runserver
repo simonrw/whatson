@@ -1,5 +1,0 @@
-#!/bin/sh
-
-set -e
-
-FLASK_APP=whatson.webapp FLASK_DEBUG=1 flask run $*
