@@ -66,6 +66,8 @@ DRIVER = None
 def _fetch_html(url, method="requests"):
     global DRIVER
 
+    LOG.debug("fetching from url %s with method %s", url, method)
+
     allowed_methods = {"requests", "selenium"}
     if method not in allowed_methods:
         raise ValueError(
@@ -237,8 +239,6 @@ def fetch_shows_belgrade(theatre_config):
             start_date = parse_single_date(date_text)
             end_date = start_date
 
-        LOG.debug("DATES: %s %s", start_date, end_date)
-
         # Check if the start date and end date make sense. The start date must
         # be the same as the date panel. If this is not the case, something is
         # up. Therefore if the end date is before the start date then we must
@@ -357,8 +357,6 @@ def fetch_shows_hippodrome(theatre_config):
                         raise
 
                 return dtime
-
-            LOG.debug("parsing date %s", date_text)
 
             if "-" in date_text or "&" in date_text:
                 if "-" in date_text:
