@@ -284,8 +284,8 @@ view : Model -> Html Msg
 view model =
   case model.error of
     Nothing ->
-      div [ class "flex text-white p-4 m-4 pt-0 mt-0 md:text-2xl lg:text-lg" ]
-          [ div [ class "flex-shrink-0 h-screen sticky top-0" ]
+      div [ class "md:flex text-white p-4 m-4 pt-0 mt-0 md:text-2xl lg:text-lg" ]
+          [ div [ class "flex-shrink-0 md:h-screen md:sticky top-0" ]
               [ h1 [ class "text-3xl md:text-5xl font-semibold mb-8" ]
                   [ text "What's on?"
                   ]
