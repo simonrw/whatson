@@ -6,7 +6,9 @@ ingesting them into the database pointed to by the `DATABASE_URL` environment
 variable.
 """
 
+import json
 import argparse
+from html import unescape
 import configparser
 import datetime
 import logging
@@ -384,6 +386,22 @@ def fetch_shows_resortsworld(theatre_config):
     html = _fetch_html_selenium(theatre_config["url"])
     soup = BeautifulSoup(html, "lxml")
 
+    # First build up a mapping of event name to image url. This is JSON after
+    # HTML escaping so we must:
+    #
+    # * fetch the text
+    # * unencode the text
+    # * parse into JSON
+    # * create a dictionary
+
+    data_mapping_encoded = soup.find("input", id="all-events").attrs["value"]
+    data_mapping = json.loads(unescape(data_mapping_encoded))
+
+    image_mapping = {
+            item["eventName"].lower(): item["thumbnailUrl"]
+            for item in data_mapping["events"]
+            }
+
     container = soup.find("div", id="home-results")
     if not container:
         raise ValueError("cannot find container element in HTML")
@@ -396,7 +414,7 @@ def fetch_shows_resortsworld(theatre_config):
         link_tag = event.find("a", class_="eventhref")
         title = link_tag.find("span", class_="title").text
         link_url = "".join([theatre_config["root_url"], link_tag.attrs["href"]])
-        image_url = event.find("img", class_="lazy").attrs["src"]
+        image_url = image_mapping[title.lower()]
         date_text = event.find("span", class_="date").text
 
         if "-" in date_text:
@@ -457,7 +475,6 @@ def fetch_shows_arena_birmingham(theatre_config):
         )
 
         if "-" in date_text:
-            LOG.warning("unhandled date: %s", date_text)
             parts = [part.strip() for part in date_text.split("-")]
             end_date = datetime.datetime.strptime(parts[1], "%d %B %Y").date()
 
