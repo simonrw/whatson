@@ -141,6 +141,7 @@ def test_arena_bham(client):
     assert shows[0]["start_date"] == datetime.date(2020, 1, 16)
     assert shows[0]["end_date"] == datetime.date(2020, 1, 19)
     assert shows[0]["title"] == "Strictly Come Dancing The Live Tour 2020"
+    assert shows[0]["image_url"] == "https://d38sswc4c2k2dz.cloudfront.net/media/1815/scd-lineup-arenas.jpg?anchor=center&mode=crop&width=537&height=294&rnd=132197819540000000&quality=60"
 
     assert shows[-1]["start_date"] == datetime.date(2020, 12, 11)
     assert shows[-1]["end_date"] == datetime.date(2020, 12, 11)

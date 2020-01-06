@@ -451,6 +451,23 @@ def fetch_shows_arena_birmingham(theatre_config):
     html = _fetch_html_selenium(theatre_config["url"])
     soup = BeautifulSoup(html, "lxml")
 
+    # First build up a mapping of event name to image url. This is JSON after
+    # HTML escaping so we must:
+    #
+    # * fetch the text
+    # * unencode the text
+    # * parse into JSON
+    # * create a dictionary
+
+    data_mapping_encoded = soup.find("input", id="all-events").attrs["value"]
+    data_mapping = json.loads(unescape(data_mapping_encoded))
+
+    image_mapping = {
+            item["eventName"].lower(): item["thumbnailUrl"]
+            for item in data_mapping["events"]
+            }
+
+
     supercontainer = soup.find("div", class_="content-area")
     if supercontainer is None:
         raise ValueError("cannot find supercontainer in HTML content")
@@ -466,9 +483,7 @@ def fetch_shows_arena_birmingham(theatre_config):
 
         title = event.find("span", class_="title").text
 
-        image_url = (
-            event.find("div", class_="image").find("img", class_="lazy").attrs["src"]
-        )
+        image_url = image_mapping[title.lower()]
 
         date_text = (
             event.find("div", class_="information").find("span", class_="date").text
