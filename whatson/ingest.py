@@ -108,6 +108,7 @@ def fetch_shows(theatre_config):
         "resortsworld-arena": fetch_shows_resortsworld,
         "arena-birmingham": fetch_shows_arena_birmingham,
         "artrix": fetch_shows_artrix,
+        "new-alexandra": fetch_shows_alex,
     }
 
     try:
@@ -555,6 +556,49 @@ def fetch_shows_artrix(theatre_config):
 
         # Handle pagination
         page += 1
+
+
+def fetch_shows_alex(theatre_config):
+    html = _fetch_html_requests(theatre_config["url"])
+    soup = BeautifulSoup(html, "lxml")
+
+    container = soup.find("section", {"class": re.compile(r"WhatsOnPanel.*")})
+    for event in container.contents:
+        card_image_tag = event.find("div", {"class": re.compile(r"ShowCard_.*")})
+
+        link_tag = card_image_tag.find("a")
+        link_url = "".join([theatre_config["root_url"], link_tag.attrs["href"]])
+
+        image_tag = card_image_tag.find("img")
+        image_url = image_tag.attrs["src"]
+
+        card_details_tag = event.find("div", {"class": re.compile("WhatsOnPanel.*")})
+        title = card_details_tag.find("h3").find("a").text
+
+        date_text = card_details_tag.find("div").text
+
+        if "-" in date_text:
+            parts = [p.strip() for p in date_text.split("-")]
+            end_date = datetime.datetime.strptime(parts[1], "%a %d %b %Y").date()
+            try:
+                start_date = datetime.datetime.strptime(parts[0], "%a %d %b %Y").date()
+            except ValueError as exc:
+                if "does not match format" in str(exc):
+                    start_date = datetime.datetime.strptime(
+                        f"{parts[0]} {end_date.year}", "%a %d %b %Y"
+                    ).date()
+
+        else:
+            start_date = datetime.datetime.strptime(date_text, "%a %d %b %Y").date()
+            end_date = start_date
+
+        yield {
+            "title": title,
+            "image_url": image_url,
+            "link_url": link_url,
+            "start_date": start_date,
+            "end_date": end_date,
+        }
 
 
 def load_config(fptr):

@@ -175,3 +175,26 @@ def test_artrix(client):
     assert shows[-1]["start_date"] == datetime.date(2020, 1, 18)
     assert shows[-1]["end_date"] == datetime.date(2020, 1, 18)
     assert shows[-1]["title"] == "Polar Squad"
+
+
+@mock.patch("whatson.ingest._fetch_html_requests")
+def test_alex(client):
+    with open("testing/responses/alex.html") as infile:
+        client.return_value = infile.read()
+
+    config = {
+        "name": "new-alexandra",
+        "root_url": "",
+        "url": "",
+    }
+
+    shows = list(ingest.fetch_shows(config))
+
+    assert len(shows) == 63
+    assert shows[0]["start_date"] == datetime.date(2020, 1, 8)
+    assert shows[0]["end_date"] == datetime.date(2020, 1, 11)
+    assert shows[0]["title"] == "Ghost Stories"
+
+    assert shows[-1]["start_date"] == datetime.date(2020, 12, 8)
+    assert shows[-1]["end_date"] == datetime.date(2021, 1, 2)
+    assert shows[-1]["title"] == "Dreamgirls"
