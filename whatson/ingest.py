@@ -526,7 +526,7 @@ def fetch_shows_artrix(theatre_config):
             link_tag = event.find("div", class_="imgBox_Intrment").find("a")
             link_url = "".join([theatre_config["root_url"], link_tag.attrs["href"]])
 
-            image_url = link_tag.find("img").attrs["src"]
+            image_url = "".join([theatre_config["root_url"], link_tag.find("img").attrs["src"]])
 
             title = event.find("div", class_="intrment_info").find("a").text
 
