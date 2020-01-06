@@ -398,9 +398,9 @@ def fetch_shows_resortsworld(theatre_config):
     data_mapping = json.loads(unescape(data_mapping_encoded))
 
     image_mapping = {
-            item["eventName"].lower(): item["thumbnailUrl"]
-            for item in data_mapping["events"]
-            }
+        item["eventName"].lower(): item["thumbnailUrl"]
+        for item in data_mapping["events"]
+    }
 
     container = soup.find("div", id="home-results")
     if not container:
@@ -463,10 +463,9 @@ def fetch_shows_arena_birmingham(theatre_config):
     data_mapping = json.loads(unescape(data_mapping_encoded))
 
     image_mapping = {
-            item["eventName"].lower(): item["thumbnailUrl"]
-            for item in data_mapping["events"]
-            }
-
+        item["eventName"].lower(): item["thumbnailUrl"]
+        for item in data_mapping["events"]
+    }
 
     supercontainer = soup.find("div", class_="content-area")
     if supercontainer is None:
@@ -541,7 +540,9 @@ def fetch_shows_artrix(theatre_config):
             link_tag = event.find("div", class_="imgBox_Intrment").find("a")
             link_url = "".join([theatre_config["root_url"], link_tag.attrs["href"]])
 
-            image_url = "".join([theatre_config["root_url"], link_tag.find("img").attrs["src"]])
+            image_url = "".join(
+                [theatre_config["root_url"], link_tag.find("img").attrs["src"]]
+            )
 
             title = event.find("div", class_="intrment_info").find("a").text
 
