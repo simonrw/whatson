@@ -3,7 +3,7 @@ from unittest import mock
 import datetime
 
 
-@mock.patch("whatson.ingest._fetch_html")
+@mock.patch("whatson.ingest._fetch_html_requests")
 def test_albany(client):
     with open("testing/responses/albany.html") as infile:
         client.return_value = infile.read()
@@ -21,7 +21,7 @@ def test_albany(client):
     assert shows[-1]["title"] == "The Mersey Beatles 2020"
 
 
-@mock.patch("whatson.ingest._fetch_html")
+@mock.patch("whatson.ingest._fetch_html_requests")
 def test_belgrade(client):
     with open("testing/responses/belgrade.html") as infile:
         client.return_value = infile.read()
@@ -44,7 +44,7 @@ def test_belgrade(client):
     assert shows[-1]["title"] == "Beauty and the Beast"
 
 
-@mock.patch("whatson.ingest._fetch_html")
+@mock.patch("whatson.ingest._fetch_html_requests")
 def test_symphony_hall(client):
     with open("testing/responses/symphony_hall_1.html") as infile:
         resp1 = infile.read()
@@ -72,7 +72,7 @@ def test_symphony_hall(client):
     assert shows[-1]["title"] == "Echo Eternal Youth Arts Festival 2020: Horizons"
 
 
-@mock.patch("whatson.ingest._fetch_html")
+@mock.patch("whatson.ingest._fetch_html_requests")
 def test_hippodrome(client):
     with open("testing/responses/hippodrome_1.html") as infile:
         resp1 = infile.read()
@@ -100,7 +100,7 @@ def test_hippodrome(client):
     assert shows[-1]["title"] == "DX - Mariposa"
 
 
-@mock.patch("whatson.ingest._fetch_html")
+@mock.patch("whatson.ingest._fetch_html_selenium")
 def test_resortsworld(client):
     with open("testing/responses/resortsworld.html") as infile:
         client.return_value = infile.read()
@@ -123,7 +123,7 @@ def test_resortsworld(client):
     assert shows[-1]["title"] == "Free Radio Hits Live 2020"
 
 
-@mock.patch("whatson.ingest._fetch_html")
+@mock.patch("whatson.ingest._fetch_html_selenium")
 def test_arena_bham(client):
     with open("testing/responses/arena_birmingham.html") as infile:
         client.return_value = infile.read()
@@ -146,7 +146,7 @@ def test_arena_bham(client):
     assert shows[-1]["title"] == "Il Divo"
 
 
-@mock.patch("whatson.ingest._fetch_html")
+@mock.patch("whatson.ingest._fetch_html_requests")
 def test_artrix(client):
     with open("testing/responses/artrix_1.html") as infile:
         resp1 = infile.read()

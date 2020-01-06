@@ -63,33 +63,27 @@ CLIENT.headers["User-Agent"] = "whatson/0.1.0"
 DRIVER = None
 
 
-def _fetch_html(url, method="requests"):
+def _fetch_html_requests(url):
+    LOG.debug("fetching from url %s", url)
+
+    response = CLIENT.get(url)
+    response.raise_for_status()
+    return response.text
+
+
+def _fetch_html_selenium(url):
     global DRIVER
 
-    LOG.debug("fetching from url %s with method %s", url, method)
+    LOG.debug("fetching from url %s", url)
 
-    allowed_methods = {"requests", "selenium"}
-    if method not in allowed_methods:
-        raise ValueError(
-            "fetch method not supported; {} not in {}".format(method, allowed_methods)
-        )
+    # Lazy initialisation of driver
+    if DRIVER is None:
+        options = Options()
+        options.headless = True
+        DRIVER = webdriver.Firefox(options=options)
 
-    if method == "requests":
-        response = CLIENT.get(url)
-        response.raise_for_status()
-        return response.text
-
-    if method == "selenium":
-        # Lazy initialisation of driver
-        if DRIVER is None:
-            options = Options()
-            options.headless = True
-            DRIVER = webdriver.Firefox(options=options)
-
-        DRIVER.get(url)
-        return DRIVER.page_source
-
-    raise NotImplementedError()
+    DRIVER.get(url)
+    return DRIVER.page_source
 
 
 # Regex replacer to remove 1st/2nd/3rd/4th etc.
@@ -126,7 +120,7 @@ def fetch_shows(theatre_config):
 
 def fetch_shows_albany(theatre_config):
     """Fetch shows from the Albany Theatre"""
-    html = _fetch_html(theatre_config["url"])
+    html = _fetch_html_requests(theatre_config["url"])
     soup = BeautifulSoup(html, "lxml")
 
     container = soup.find("div", class_="query_block_content")
@@ -170,7 +164,7 @@ def fetch_shows_albany(theatre_config):
 
 def fetch_shows_belgrade(theatre_config):
     """Fetch shows from the Belgrade Theatre"""
-    html = _fetch_html(theatre_config["url"])
+    html = _fetch_html_requests(theatre_config["url"])
     soup = BeautifulSoup(html, "lxml")
 
     container = soup.find("div", class_="list-productions", id="secondary-content")
@@ -262,7 +256,7 @@ def fetch_shows_symphony_hall(theatre_config):
 
     # Loop over all pages
     while True:
-        html = _fetch_html(url)
+        html = _fetch_html_requests(url)
         soup = BeautifulSoup(html, "lxml")
 
         container = soup.find("ul", class_="grid cf")
@@ -323,7 +317,7 @@ def fetch_shows_hippodrome(theatre_config):
     url = theatre_config["url"]
 
     while True:
-        html = _fetch_html(url)
+        html = _fetch_html_requests(url)
         soup = BeautifulSoup(html, "lxml")
         container = soup.find("ul", class_="main-events-list")
 
@@ -386,7 +380,7 @@ def fetch_shows_hippodrome(theatre_config):
 
 
 def fetch_shows_resortsworld(theatre_config):
-    html = _fetch_html(theatre_config["url"], method="selenium")
+    html = _fetch_html_selenium(theatre_config["url"])
     soup = BeautifulSoup(html, "lxml")
 
     container = soup.find("div", id="home-results")
@@ -435,7 +429,7 @@ def fetch_shows_resortsworld(theatre_config):
 
 
 def fetch_shows_arena_birmingham(theatre_config):
-    html = _fetch_html(theatre_config["url"], method="selenium")
+    html = _fetch_html_selenium(theatre_config["url"])
     soup = BeautifulSoup(html, "lxml")
 
     supercontainer = soup.find("div", class_="content-area")
@@ -501,7 +495,7 @@ def fetch_shows_artrix(theatre_config):
         params = urlencode({"page": page})
         url = theatre_config["url"] + "?" + params
 
-        html = _fetch_html(url)
+        html = _fetch_html_requests(url)
         soup = BeautifulSoup(html, "lxml")
 
         container = soup.find("ul", id="gridview-new")
