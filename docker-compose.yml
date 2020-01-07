@@ -1,4 +1,5 @@
 version: "3"
+
 services:
   whatson:
     build: .
@@ -7,3 +8,4 @@ services:
     restart: always
     env_file:
       - ./.env
+    network_mode: "host"
