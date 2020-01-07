@@ -1,0 +1,75 @@
+---
+- hosts: thewalke.rs
+  tasks:
+    - name: Install ansible dependencies
+      apt:
+        name:
+          - python-selinux
+          - python-docker
+          - python3-selinux
+          - python3-docker
+        state: present
+      become: yes
+
+    - name: Install pip dependencies
+      pip:
+        name: docker-compose
+        state: present
+      become: yes
+
+- hosts: thewalke.rs
+  roles:
+    - name: geerlingguy.docker
+      become: yes
+
+- hosts: thewalke.rs
+  tasks:
+    - name: Deploy the nginx config
+      template:
+        src: whatson.conf
+        dest: /etc/nginx/sites-available/whatson
+        owner: root
+        group: root
+      become: yes
+      notify: Restart nginx
+
+    - name: Link the config file to the correct place
+      file:
+        src: /etc/nginx/sites-available/whatson
+        dest: /etc/nginx/sites-enabled/whatson
+        state: link
+      become: yes
+      notify: Restart nginx
+
+    - name: Run the web app
+      docker_container:
+        image: srwalker101/whatson-web
+        name: whatson-web
+        network_mode: host
+        restart_policy: always
+        env:
+          DATABASE_URL: "{{ lookup('env', 'DATABASE_URL') }}"
+      become: yes
+
+    # - name: Copy the ingest service
+    #   template:
+    #     src: whatson-ingest.service
+    #     dest: /etc/systemd/system/whatson-ingest.service
+    #     owner: root
+    #     group: root
+    #   become: yes
+
+    # - name: Copy the ingest timer
+    #   template:
+    #     src: whatson-ingest.timer
+    #     dest: /etc/systemd/system/whatson-ingest.timer
+    #     owner: root
+    #     group: root
+    #   become: yes
+
+  handlers:
+    - name: Restart nginx
+      service:
+        name: nginx
+        state: restarted
+      become: yes

@@ -1,0 +1,6 @@
+[Unit]
+Description=Check what's on
+
+[Service]
+Type=oneshot
+ExecStart=/home/simon/.cache/pypoetry/virtualenvs/speedtest-tracker-py3.5/bin/speedtracker --verbose
