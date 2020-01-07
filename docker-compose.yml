@@ -1,0 +1,9 @@
+version: "3"
+
+services:
+  whatson:
+    build: .
+    ports:
+      - "5000:5000"
+    restart: always
+    network_mode: "host"
