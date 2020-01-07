@@ -34,4 +34,4 @@ COPY elm.json /app/
 RUN npm run prod
 
 EXPOSE 5000
-CMD ["poetry", "run", "gunicorn", "--bind", "5000", "--workers", "4", "whatson.wsgi:app"]
+CMD ["gunicorn", "--bind", "5000", "--workers", "4", "whatson.wsgi:app"]
