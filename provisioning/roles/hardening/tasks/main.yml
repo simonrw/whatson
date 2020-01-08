@@ -1,0 +1,11 @@
+- name: Install security packages
+  apt:
+    name:
+      - fail2ban
+  notify: Restart fail2ban
+
+- name: Update config file
+  copy:
+    src: jail.local
+    dest: /etc/fail2ban/jail.local
+  notify: Restart fail2ban

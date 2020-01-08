@@ -21,6 +21,11 @@
 
 - hosts: thewalke.rs
   roles:
+    - name: hardening
+      become: yes
+      tags:
+        - current
+
     - name: geerlingguy.docker
       become: yes
 
