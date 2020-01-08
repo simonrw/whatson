@@ -49,9 +49,18 @@
         image: srwalker101/whatson-web
         name: whatson-web
         network_mode: host
+        pull: true
         restart_policy: always
         env:
           DATABASE_URL: "{{ lookup('env', 'DATABASE_URL') }}"
+      become: yes
+
+    - name: Fetch the ingest container
+      docker_image:
+        name: srwalker101/whatson-ingest
+        state: present
+        source: pull
+        force_source: yes
       become: yes
 
     - name: Copy the ingest service
