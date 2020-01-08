@@ -23,6 +23,9 @@
       become: yes
 
 - hosts: thewalke.rs
+  vars:
+    database_url: "{{ lookup('env', 'DATABASE_URL') }}"
+    image_name: srwalker101/whatson-ingest:latest
   tasks:
     - name: Deploy the nginx config
       template:
@@ -51,25 +54,39 @@
           DATABASE_URL: "{{ lookup('env', 'DATABASE_URL') }}"
       become: yes
 
-    # - name: Copy the ingest service
-    #   template:
-    #     src: whatson-ingest.service
-    #     dest: /etc/systemd/system/whatson-ingest.service
-    #     owner: root
-    #     group: root
-    #   become: yes
+    - name: Copy the ingest service
+      template:
+        src: whatson-ingest.service
+        dest: /etc/systemd/system/whatson-ingest.service
+        owner: root
+        group: root
+      become: yes
+      notify: Reload systemd
 
-    # - name: Copy the ingest timer
-    #   template:
-    #     src: whatson-ingest.timer
-    #     dest: /etc/systemd/system/whatson-ingest.timer
-    #     owner: root
-    #     group: root
-    #   become: yes
+    - name: Copy the ingest timer
+      template:
+        src: whatson-ingest.timer
+        dest: /etc/systemd/system/whatson-ingest.timer
+        owner: root
+        group: root
+      become: yes
+      notify: Reload systemd
+
+    - name: Enable the timer
+      systemd:
+        name: whatson-ingest.timer
+        state: started
+        enabled: yes
+      become: yes
 
   handlers:
     - name: Restart nginx
       service:
         name: nginx
         state: restarted
+      become: yes
+
+    - name: Reload systemd
+      systemd:
+        daemon_reload: yes
       become: yes

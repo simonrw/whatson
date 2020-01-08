@@ -3,4 +3,4 @@ Description=Check what's on
 
 [Service]
 Type=oneshot
-ExecStart=/home/simon/.cache/pypoetry/virtualenvs/speedtest-tracker-py3.5/bin/speedtracker --verbose
+ExecStart=/usr/bin/docker run -e DATABASE_URL={{ database_url }} --rm --net host {{ image_name }}

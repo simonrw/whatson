@@ -2,7 +2,7 @@
 Description=Run whatson ingest repeatedly
 
 [Timer]
-OnCalendar=00/6:00
+OnCalendar=daily
 Persistent=true
 
 [Install]
