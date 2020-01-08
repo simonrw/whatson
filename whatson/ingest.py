@@ -22,14 +22,14 @@ import requests
 from .db import DB, reset_database
 
 LOG = logging.getLogger("whatson")
-LOG.setLevel(logging.DEBUG)
+LOG.setLevel(logging.WARNING)
 
 # Database management
 
 
 def upload(theatre, show):
     """Given a show extracted from the theatre page, upload the show to the database"""
-    LOG.info("uploading %s - %s", show["title"], theatre)
+    LOG.debug("uploading %s - %s", show["title"], theatre)
     with DB as conn:
         cursor = conn.cursor()
         try:
@@ -574,7 +574,6 @@ def fetch_shows_artrix(theatre_config):
 
             if "-" in date_text:
                 parts = [part.strip() for part in date_text.split("-")]
-                LOG.warning("unsupported: %s", date_text)
 
                 end_date = parse_date_part(parts[1])
                 start_date = parse_date_part(parts[0], end_date=end_date)
@@ -662,7 +661,12 @@ def fetch_warwick_arts_centre(theatre_config):
             and w not in repeated_days
         ]
         newstr = (
-            " ".join(words).split(",")[0].rstrip("-").split("(")[0].replace("–", "-")
+            " ".join(words)
+            .split(",")[0]
+            .rstrip("-")
+            .split("(")[0]
+            .replace("–", "-")
+            .rstrip("&")
         )
 
         return newstr.strip()
@@ -691,34 +695,51 @@ def fetch_warwick_arts_centre(theatre_config):
             title = event.find("div", class_="body").find("h2").text
 
             date_text = event.find("p", class_="date").text.strip()
+            LOG.debug(date_text)
             date_text = fix_date_text(date_text)
 
-            LOG.debug(date_text)
-            if "-" in date_text:
-                parts = [p.strip() for p in date_text.split("-")]
-                end_date = datetime.datetime.strptime(parts[1], "%a %d %b %Y").date()
-                try:
-                    start_date = datetime.datetime.strptime(
-                        f"{parts[0]} {end_date.year}", "%a %d %b %Y"
+            try:
+                if "-" in date_text:
+                    parts = [p.strip() for p in date_text.split("-")]
+                    end_date = datetime.datetime.strptime(
+                        parts[1], "%a %d %b %Y"
                     ).date()
-                except ValueError as exc:
-                    if "does not match format" in str(exc):
+                    try:
                         start_date = datetime.datetime.strptime(
-                            f"{parts[0]} {end_date.month} {end_date.year}",
-                            "%a %d %m %Y",
+                            f"{parts[0]} {end_date.year}", "%a %d %b %Y"
                         ).date()
+                    except ValueError as exc:
+                        if "does not match format" in str(exc):
+                            start_date = datetime.datetime.strptime(
+                                f"{parts[0]} {end_date.month} {end_date.year}",
+                                "%a %d %m %Y",
+                            ).date()
 
-            else:
-                start_date = datetime.datetime.strptime(date_text, "%a %d %b %Y").date()
-                end_date = start_date
+                else:
+                    try:
+                        start_date = datetime.datetime.strptime(
+                            date_text, "%a %d %b %Y"
+                        ).date()
+                    except ValueError as exc:
+                        if "does not match format" in str(exc):
+                            start_date = datetime.datetime.strptime(
+                                f"{date_text} {CURRENT_YEAR}", "%a %d %b %Y"
+                            ).date()
 
-            yield {
-                "title": title,
-                "image_url": image_url,
-                "link_url": link_url,
-                "start_date": start_date,
-                "end_date": end_date,
-            }
+                    end_date = start_date
+
+                yield {
+                    "title": title,
+                    "image_url": image_url,
+                    "link_url": link_url,
+                    "start_date": start_date,
+                    "end_date": end_date,
+                }
+            except ValueError:
+                LOG.warning("cannot parse date text %s", date_text)
+                continue
+
+        start_idx += 10
 
 
 def load_config(fptr):
@@ -739,7 +760,7 @@ def load_config(fptr):
 
 def main():
     """The entrypoint, called by `whatson-ingest`"""
-    logging.basicConfig(level=logging.WARNING)
+    logging.basicConfig(level=logging.INFO)
 
     # Set up the command line parser
 
@@ -758,7 +779,11 @@ def main():
         default=False,
         help="Clear database contents before ingesting",
     )
+    parser.add_argument("-v", "--verbose", action="store_true", default=False)
     args = parser.parse_args()
+
+    if args.verbose:
+        LOG.setLevel(logging.INFO)
 
     if args.reset:
         reset_database()

@@ -236,4 +236,7 @@ def test_arts_centre(client):
 
     assert shows[-1]["start_date"] == datetime.date(2020, 1, 26)
     assert shows[-1]["end_date"] == datetime.date(2020, 1, 26)
-    assert shows[-1]["title"] == "Warwick Masterclass 2020: Getting Creative with your Fancy Camera"
+    assert (
+        shows[-1]["title"]
+        == "Warwick Masterclass 2020: Getting Creative with your Fancy Camera"
+    )
