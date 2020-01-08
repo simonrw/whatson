@@ -79,6 +79,31 @@ def get_by_month():
     return jsonify_ok(shows=[ShowPresenter(show) for show in rows])
 
 
+def interpolate_months(seen_months):
+    """Helper function to interpolate months that do not have a start or end
+    date, but are in the middle of a show run.
+    """
+    # Make sure to interpolate the in-between months
+    current = seen_months[0]
+    current_year, current_month = current["year"], current["month"]
+
+    end = seen_months[-1]
+
+    while True:
+        if current_year > end["year"]:
+            break
+
+        if current_year == end["year"] and current_month > end["month"]:
+            break
+
+        yield {"year": current_year, "month": current_month}
+
+        current_month += 1
+        if current_month > 12:
+            current_month = 1
+            current_year += 1
+
+
 @app.route("/api/months", methods=["GET"])
 @json_errors
 def get_months():
@@ -99,4 +124,6 @@ def get_months():
             )
             rows = cursor.fetchall()
 
-    return jsonify_ok(dates=rows)
+    dates = interpolate_months(rows)
+
+    return jsonify_ok(dates=list(dates))
