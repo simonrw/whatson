@@ -206,3 +206,34 @@ def test_alex(client):
     assert shows[-1]["start_date"] == datetime.date(2020, 12, 8)
     assert shows[-1]["end_date"] == datetime.date(2021, 1, 2)
     assert shows[-1]["title"] == "Dreamgirls"
+
+
+@mock.patch("whatson.ingest._fetch_html_requests")
+def test_arts_centre(client):
+    with open("testing/responses/arts_centre_1.html") as infile:
+        resp1 = infile.read()
+
+    with open("testing/responses/arts_centre_2.html") as infile:
+        resp2 = infile.read()
+
+    with open("testing/responses/arts_centre_3.html") as infile:
+        resp3 = infile.read()
+
+    client.side_effect = [resp1, resp2, resp3]
+
+    config = {
+        "name": "warwick-arts-centre",
+        "root_url": "",
+        "url": "",
+    }
+
+    shows = list(ingest.fetch_shows(config))
+
+    assert len(shows) == 20
+    assert shows[0]["start_date"] == datetime.date(2020, 1, 9)
+    assert shows[0]["end_date"] == datetime.date(2020, 1, 12)
+    assert shows[0]["title"] == "Cinderella"
+
+    assert shows[-1]["start_date"] == datetime.date(2020, 1, 26)
+    assert shows[-1]["end_date"] == datetime.date(2020, 1, 26)
+    assert shows[-1]["title"] == "Warwick Masterclass 2020: Getting Creative with your Fancy Camera"

@@ -113,6 +113,7 @@ def fetch_shows(theatre_config):
         "arena-birmingham": fetch_shows_arena_birmingham,
         "artrix": fetch_shows_artrix,
         "new-alexandra": fetch_shows_alex,
+        "warwick-arts-centre": fetch_warwick_arts_centre,
     }
 
     try:
@@ -634,6 +635,90 @@ def fetch_shows_alex(theatre_config):
             "start_date": start_date,
             "end_date": end_date,
         }
+
+
+def fetch_warwick_arts_centre(theatre_config):
+    start_idx = 0
+
+    def fix_date_text(txt):
+        """Given a date text, strip out any unrequired terms
+        """
+        repeated_days = {
+            "Mondays",
+            "Tuesdays",
+            "Wednesdays",
+            "Thursdays",
+            "Fridays",
+            "Saturdays",
+            "Sundays",
+        }
+        words = [w.strip() for w in txt.split()]
+        words = [
+            w
+            for w in words
+            if "pm" not in w
+            and "am" not in w
+            and w != "from"
+            and w not in repeated_days
+        ]
+        newstr = (
+            " ".join(words).split(",")[0].rstrip("-").split("(")[0].replace("–", "-")
+        )
+
+        return newstr.strip()
+
+    while True:
+
+        params = urlencode({"start": start_idx})
+        url = theatre_config["url"] + "?" + params
+
+        html = _fetch_html_requests(url)
+        soup = BeautifulSoup(html, "lxml")
+
+        container = soup.find("div", class_="area-production-list")
+        events = container.find_all("article", class_="unit-production-entry")
+
+        if not events:
+            LOG.debug("reached end of pages")
+            break
+
+        for event in events:
+
+            image_tag = event.find("a", class_="media")
+            link_url = "".join([theatre_config["root_url"], image_tag.attrs["href"]])
+            image_url = image_tag.find("img").attrs["src"]
+
+            title = event.find("div", class_="body").find("h2").text
+
+            date_text = event.find("p", class_="date").text.strip()
+            date_text = fix_date_text(date_text)
+
+            LOG.debug(date_text)
+            if "-" in date_text:
+                parts = [p.strip() for p in date_text.split("-")]
+                end_date = datetime.datetime.strptime(parts[1], "%a %d %b %Y").date()
+                try:
+                    start_date = datetime.datetime.strptime(
+                        f"{parts[0]} {end_date.year}", "%a %d %b %Y"
+                    ).date()
+                except ValueError as exc:
+                    if "does not match format" in str(exc):
+                        start_date = datetime.datetime.strptime(
+                            f"{parts[0]} {end_date.month} {end_date.year}",
+                            "%a %d %m %Y",
+                        ).date()
+
+            else:
+                start_date = datetime.datetime.strptime(date_text, "%a %d %b %Y").date()
+                end_date = start_date
+
+            yield {
+                "title": title,
+                "image_url": image_url,
+                "link_url": link_url,
+                "start_date": start_date,
+                "end_date": end_date,
+            }
 
 
 def load_config(fptr):
