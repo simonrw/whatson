@@ -18,7 +18,6 @@ from bs4.element import Tag
 from bs4 import BeautifulSoup
 from psycopg2.errors import UniqueViolation  # pylint: disable=no-name-in-module
 from selenium import webdriver
-from selenium.webdriver.firefox.options import Options
 import requests
 from .db import DB, reset_database
 
@@ -80,9 +79,12 @@ def _fetch_html_selenium(url):
 
     # Lazy initialisation of driver
     if DRIVER is None:
-        options = Options()
-        options.headless = True
-        DRIVER = webdriver.Firefox(options=options)
+        options = webdriver.ChromeOptions()
+        options.add_argument("--no-sandbox")
+        options.add_argument("--headless")
+        options.add_argument("--disable-gpu")
+        DRIVER = webdriver.Chrome(chrome_options=options)
+        DRIVER.implicitly_wait(3)
 
     DRIVER.get(url)
     return DRIVER.page_source
