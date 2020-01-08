@@ -8,6 +8,8 @@
           - python-docker
           - python3-selinux
           - python3-docker
+          - python-pip
+          - python3-pip
         state: present
       become: yes
 
