@@ -14,4 +14,7 @@ push-ingest: build-ingest
 push-web: build-web
 	docker push ${BASE_TAG}-web
 
-.PHONY: build-ingest build-web push-ingest push-web
+provision:
+	ansible-playbook -i hosts --ask-become-pass provisioning/main.yml
+
+.PHONY: build-ingest build-web push-ingest push-web provision
