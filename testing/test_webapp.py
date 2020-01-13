@@ -13,8 +13,9 @@ def client(connection):
 
 
 def test_getting_months(client, cursor):
-    start_date = datetime.date(2019, 1, 2)
-    end_date = datetime.date(2019, 2, 3)
+    today = datetime.date.today()
+    start_date = datetime.date(today.year + 1, 1, 2)
+    end_date = datetime.date(today.year + 1, 2, 3)
     cursor.execute(
         """INSERT INTO shows (theatre, title, image_url, link_url, start_date, end_date)
             VALUES (%s, %s, %s, %s, %s, %s)""",
@@ -24,7 +25,10 @@ def test_getting_months(client, cursor):
     rv = client.get("/api/months")
     data = rv.get_json()
 
-    expected = [{"year": 2019, "month": 1}, {"year": 2019, "month": 2}]
+    expected = [
+        {"year": today.year + 1, "month": 1},
+        {"year": today.year + 1, "month": 2},
+    ]
     assert data["dates"] == expected
 
 

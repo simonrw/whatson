@@ -91,6 +91,7 @@ def create_app(db=None):
                                 EXTRACT(MONTH FROM end_date)::int AS month,
                                 EXTRACT(YEAR FROM end_date)::int AS year
                             FROM shows
+                            WHERE end_date > CURRENT_DATE
                         ORDER BY year, month
                         """
                 )
