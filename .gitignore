@@ -11,3 +11,5 @@ dist
 .vim
 .env
 testing/responses/*_files
+.coverage
+htmlcov
