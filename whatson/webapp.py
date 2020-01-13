@@ -96,6 +96,10 @@ def create_app(db=None):
                 )
                 rows = cursor.fetchall()
 
+        if not rows:
+            # We do not have anything in the database
+            return jsonify_ok(dates=[])
+
         dates = interpolate_months(rows)
 
         return jsonify_ok(dates=list(dates))

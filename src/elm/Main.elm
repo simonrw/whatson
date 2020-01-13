@@ -407,7 +407,10 @@ monthIntToString m =
 modelSelect : Model -> Html Msg
 modelSelect model =
     if List.length model.availableMonths == 0 then
-        div [] []
+        div []
+            [ p []
+                [ text "No months have been ingested, sorry" ]
+            ]
 
     else
         let
