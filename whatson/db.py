@@ -19,9 +19,9 @@ LOG.setLevel(logging.DEBUG)
 DB = psycopg2.connect(os.environ["DATABASE_URL"], cursor_factory=RealDictCursor)
 
 
-def reset_database():
+def reset_database(db):
     """Resets the database to its basic schema"""
-    with DB as conn:
+    with db as conn:
         cursor = conn.cursor()
         cursor.execute("DROP TABLE IF EXISTS shows")
         cursor.execute(

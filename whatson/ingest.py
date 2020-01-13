@@ -786,7 +786,7 @@ def main():
         LOG.setLevel(logging.INFO)
 
     if args.reset:
-        reset_database()
+        reset_database(DB)
 
     # Run the ingestion
 
