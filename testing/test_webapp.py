@@ -32,6 +32,34 @@ def test_getting_months(client, cursor):
     assert data["dates"] == expected
 
 
+def test_only_getting_valid_months(client, cursor):
+    today = datetime.date.today()
+
+    # Insert a show well into the past
+    start_date = datetime.date(today.year - 2, today.month, today.day)
+    end_date = datetime.date(today.year - 2, today.month + 2, 1)
+    cursor.execute(
+        """INSERT INTO shows (theatre, title, image_url, link_url, start_date, end_date)
+            VALUES (%s, %s, %s, %s, %s, %s)""",
+        ("test", "show1", "", "", start_date, end_date),
+    )
+
+    # Now add a show in the future
+    start_date = datetime.date(today.year + 1, 1, 2)
+    end_date = datetime.date(today.year + 1, 2, 3)
+    cursor.execute(
+        """INSERT INTO shows (theatre, title, image_url, link_url, start_date, end_date)
+            VALUES (%s, %s, %s, %s, %s, %s)""",
+        ("test", "show2", "", "", start_date, end_date),
+    )
+
+    rv = client.get("/api/months")
+    data = rv.get_json()
+
+    assert {"year": today.year - 2, "month": today.month} not in data["dates"]
+    assert {"year": today.year + 1, "month": 1} in data["dates"]
+
+
 def test_something():
     start = {"year": 2019, "month": 11}
     end = {"year": 2020, "month": 8}

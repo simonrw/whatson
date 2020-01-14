@@ -82,20 +82,26 @@ def create_app(db=None):
         with db as conn:
             with conn.cursor() as cursor:
                 cursor.execute(
-                    """SELECT
-                                EXTRACT(MONTH FROM start_date)::int AS month,
-                                EXTRACT(YEAR FROM start_date)::int AS year
-                            FROM shows
-                            UNION
-                            SELECT
-                                EXTRACT(MONTH FROM end_date)::int AS month,
-                                EXTRACT(YEAR FROM end_date)::int AS year
-                            FROM shows
-                            WHERE end_date > CURRENT_DATE
-                        ORDER BY year, month
-                        """
+                    """(SELECT
+                            EXTRACT(MONTH FROM start_date)::int AS month,
+                            EXTRACT(YEAR FROM start_date)::int AS year
+                        FROM shows
+                        WHERE end_date > CURRENT_DATE
+                        )
+                        UNION
+                        (
+                        SELECT
+                            EXTRACT(MONTH FROM end_date)::int AS month,
+                            EXTRACT(YEAR FROM end_date)::int AS year
+                        FROM shows
+                        WHERE end_date > CURRENT_DATE
+                        )
+                    ORDER BY year, month
+                    """
                 )
                 rows = cursor.fetchall()
+
+        print(rows)
 
         if not rows:
             # We do not have anything in the database
