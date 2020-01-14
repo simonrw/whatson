@@ -34,7 +34,6 @@ COPY poetry.lock pyproject.toml /app/
 
 RUN poetry config virtualenvs.create false
 COPY whatson /app/whatson
-COPY config.ini /app/
 RUN poetry install --no-interaction --no-dev
 
 CMD ["whatson-ingest"]
