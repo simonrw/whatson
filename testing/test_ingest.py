@@ -8,13 +8,8 @@ def test_albany(client):
     with open("testing/responses/albany.html") as infile:
         client.return_value = infile.read()
 
-    config = {
-        "name": "albany",
-        "root_url": "",
-        "url": "",
-    }
-
-    shows = list(ingest.fetch_shows(config))
+    fetcher = ingest.AlbanyFetcher()
+    shows = list(fetcher.fetch())
 
     assert len(shows) == 29
     assert shows[0]["start_date"] == datetime.date(2020, 1, 1)
@@ -26,13 +21,8 @@ def test_belgrade(client):
     with open("testing/responses/belgrade.html") as infile:
         client.return_value = infile.read()
 
-    config = {
-        "name": "belgrade",
-        "root_url": "",
-        "url": "",
-    }
-
-    shows = list(ingest.fetch_shows(config))
+    fetcher = ingest.BelgradeFetcher()
+    shows = list(fetcher.fetch())
 
     assert len(shows) == 66
     assert shows[0]["start_date"] == datetime.date(2019, 11, 27)
@@ -54,13 +44,8 @@ def test_symphony_hall(client):
 
     client.side_effect = [resp1, resp2]
 
-    config = {
-        "name": "symphony-hall",
-        "root_url": "",
-        "url": "",
-    }
-
-    shows = list(ingest.fetch_shows(config))
+    fetcher = ingest.SymphonyHallFetcher()
+    shows = list(fetcher.fetch())
 
     assert len(shows) == 24
     assert shows[0]["start_date"] == datetime.date(2020, 1, 5)
@@ -82,13 +67,8 @@ def test_hippodrome(client):
 
     client.side_effect = [resp1, resp2]
 
-    config = {
-        "name": "hippodrome",
-        "root_url": "",
-        "url": "",
-    }
-
-    shows = list(ingest.fetch_shows(config))
+    fetcher = ingest.HippodromeFetcher()
+    shows = list(fetcher.fetch())
 
     assert len(shows) == 32
     assert shows[0]["start_date"] == datetime.date(2020, 1, 5)
@@ -105,13 +85,8 @@ def test_resortsworld(client):
     with open("testing/responses/resortsworld.html") as infile:
         client.return_value = infile.read()
 
-    config = {
-        "name": "resortsworld-arena",
-        "root_url": "",
-        "url": "",
-    }
-
-    shows = list(ingest.fetch_shows(config))
+    fetcher = ingest.ResortsWorldFetcher()
+    shows = list(fetcher.fetch())
 
     assert len(shows) == 28
     assert shows[0]["start_date"] == datetime.date(2020, 1, 31)
@@ -132,13 +107,8 @@ def test_arena_bham(client):
     with open("testing/responses/arena_birmingham.html") as infile:
         client.return_value = infile.read()
 
-    config = {
-        "name": "arena-birmingham",
-        "root_url": "",
-        "url": "",
-    }
-
-    shows = list(ingest.fetch_shows(config))
+    fetcher = ingest.ArenaBirminghamFetcher()
+    shows = list(fetcher.fetch())
 
     assert len(shows) == 61
     assert shows[0]["start_date"] == datetime.date(2020, 1, 16)
@@ -167,13 +137,8 @@ def test_artrix(client):
 
     client.side_effect = [resp1, resp2, resp3]
 
-    config = {
-        "name": "artrix",
-        "root_url": "",
-        "url": "",
-    }
-
-    shows = list(ingest.fetch_shows(config))
+    fetcher = ingest.ArtrixFetcher()
+    shows = list(fetcher.fetch())
 
     assert len(shows) == 32
     assert shows[0]["start_date"] == datetime.date(2019, 11, 5)
@@ -190,13 +155,8 @@ def test_alex(client):
     with open("testing/responses/alex.html") as infile:
         client.return_value = infile.read()
 
-    config = {
-        "name": "new-alexandra",
-        "root_url": "",
-        "url": "",
-    }
-
-    shows = list(ingest.fetch_shows(config))
+    fetcher = ingest.AlexFetcher()
+    shows = list(fetcher.fetch())
 
     assert len(shows) == 63
     assert shows[0]["start_date"] == datetime.date(2020, 1, 8)
@@ -221,13 +181,8 @@ def test_arts_centre(client):
 
     client.side_effect = [resp1, resp2, resp3]
 
-    config = {
-        "name": "warwick-arts-centre",
-        "root_url": "",
-        "url": "",
-    }
-
-    shows = list(ingest.fetch_shows(config))
+    fetcher = ingest.WarwickArtsCentreFetcher()
+    shows = list(fetcher.fetch())
 
     assert len(shows) == 20
     assert shows[0]["start_date"] == datetime.date(2020, 1, 9)
