@@ -100,39 +100,53 @@ def weekday_replacer(text):
     return text.replace("Thurs", "Thu").replace("Tues", "Tue")
 
 
-def fetch_shows(theatre_config):
-    """Given a theatre config, fetch the shows and yield each show"""
-    LOG.info("fetching %s", theatre_config["url"])
+class FetcherList(type):
+    fetchers = set()
 
-    fetchers = {
-        "albany": AlbanyFetcher,
-        "belgrade": BelgradeFetcher,
-        "symphony-hall": SymphonyHallFetcher,
-        "hippodrome": HippodromeFetcher,
-        "resortsworld-arena": ResortsWorldFetcher,
-        "arena-birmingham": ArenaBirminghamFetcher,
-        "artrix": ArtrixFetcher,
-        "new-alexandra": AlexFetcher,
-        "warwick-arts-centre": WarwickArtsCentreFetcher,
-    }
-
-    try:
-        fetch_cls = fetchers[theatre_config["name"]]
-    except KeyError:
-        raise NotImplementedError(theatre_config["name"])
-    else:
-        fetcher = fetch_cls()
-        return fetcher.fetch(theatre_config)
+    def __new__(cls, name, bases, dct):
+        c = super().__new__(cls, name, bases, dct)
+        if name != "Fetcher":
+            c.fetchers.add(c)
+        return c
 
 
-class Fetcher(object):
+class ValidationError(ValueError):
     pass
 
 
+class Fetcher(metaclass=FetcherList):
+    url = None
+    root_url = None
+    name = None
+    active = None
+
+    def __init__(self):
+        self.fetchers = self.__class__.fetchers
+
+        # Validate the data
+        if self.url is None:
+            raise ValidationError(f"{self}: self.url is None")
+
+        if self.root_url is None:
+            raise ValidationError(f"{self}: self.root_url is None")
+
+        if self.name is None:
+            raise ValidationError(f"{self}: self.name is None")
+
+        if self.active is None:
+            raise ValidationError(f"{self}: self.active is None")
+
+
 class AlbanyFetcher(Fetcher):
-    def fetch(self, theatre_config):
+
+    name = "Albany"
+    root_url = "https://albanytheatre.co.uk/"
+    url = "https://albanytheatre.co.uk/whats-on/"
+    active = True
+
+    def fetch(self):
         """Fetch shows from the Albany Theatre"""
-        html = _fetch_html_requests(theatre_config["url"])
+        html = _fetch_html_requests(self.url)
         soup = BeautifulSoup(html, "lxml")
 
         container = soup.find("div", class_="query_block_content")
@@ -147,10 +161,10 @@ class AlbanyFetcher(Fetcher):
 
             title = elem.find("h4").find("a").text.strip()
             image_url = elem.find("img").attrs["src"]
-            image_url = "".join([theatre_config["root_url"], image_url])
+            image_url = "".join([self.root_url, image_url])
 
             link_url = elem.find("h4").find("a").attrs["href"]
-            link_url = "".join([theatre_config["root_url"], link_url])
+            link_url = "".join([self.root_url, link_url])
 
             # Parse date string
             if "-" in date_str:
@@ -159,7 +173,9 @@ class AlbanyFetcher(Fetcher):
                 end_date = datetime.datetime.strptime(parts[1], "%d %B %Y").date()
 
                 date_month = datetime.datetime.strptime(parts[0], "%d %B").date()
-                start_date = datetime.date(end_date.year, date_month.month, date_month.day)
+                start_date = datetime.date(
+                    end_date.year, date_month.month, date_month.day
+                )
             else:
                 # One date therefore start_date = end_date
                 start_date = datetime.datetime.strptime(date_str, "%d %B %Y").date()
@@ -175,9 +191,15 @@ class AlbanyFetcher(Fetcher):
 
 
 class BelgradeFetcher(Fetcher):
-    def fetch(self, theatre_config):
+
+    name = "Belgrade"
+    root_url = "http://www.belgrade.co.uk/"
+    url = "http://www.belgrade.co.uk/whats-on/"
+    active = True
+
+    def fetch(self):
         """Fetch shows from the Belgrade Theatre"""
-        html = _fetch_html_requests(theatre_config["url"])
+        html = _fetch_html_requests(self.url)
         soup = BeautifulSoup(html, "lxml")
 
         container = soup.find("div", class_="list-productions", id="secondary-content")
@@ -217,10 +239,12 @@ class BelgradeFetcher(Fetcher):
             date_text = elem.find("p", class_="date").text.strip().lower()
 
             link_url = elem.find("a", class_="production-link").attrs["href"]
-            link_url = "".join([theatre_config["root_url"], link_url])
+            link_url = "".join([self.root_url, link_url])
 
-            image_url = elem.find("a", class_="production-link").find("img").attrs["src"]
-            image_url = "".join([theatre_config["root_url"], image_url])
+            image_url = (
+                elem.find("a", class_="production-link").find("img").attrs["src"]
+            )
+            image_url = "".join([self.root_url, image_url])
 
             # Parse the date from this panel. First we replace instances of e.g.
             # 1st -> 1 so that strptime can parse the day and month
@@ -252,7 +276,9 @@ class BelgradeFetcher(Fetcher):
             # add one to the end date year.
             assert start_date.year == year
             if end_date < start_date:
-                end_date = datetime.date(end_date.year + 1, end_date.month, end_date.day)
+                end_date = datetime.date(
+                    end_date.year + 1, end_date.month, end_date.day
+                )
 
             yield {
                 "title": title,
@@ -264,9 +290,15 @@ class BelgradeFetcher(Fetcher):
 
 
 class SymphonyHallFetcher(Fetcher):
-    def fetch(self, theatre_config):
+
+    name = "Symphony Hall"
+    root_url = "https://www.thsh.co.uk/"
+    url = "https://www.thsh.co.uk/whats-on/"
+    active = True
+
+    def fetch(self):
         """Fetch shows from Symphony Hall"""
-        url = theatre_config["url"]
+        url = self.url
 
         # Loop over all pages
         while True:
@@ -285,7 +317,9 @@ class SymphonyHallFetcher(Fetcher):
 
                 link_url = elem.find("a", class_="event-block").attrs["href"]
                 image_url = (
-                    elem.find("img", class_="o-image__full").attrs["data-srcset"].split()[0]
+                    elem.find("img", class_="o-image__full")
+                    .attrs["data-srcset"]
+                    .split()[0]
                 )
 
                 date_container = elem.find("span", class_="event-block__time")
@@ -308,7 +342,9 @@ class SymphonyHallFetcher(Fetcher):
                         times[1].attrs["datetime"]
                     ).date()
                 else:
-                    raise NotImplementedError(f"cannot parse dates from {date_container}")
+                    raise NotImplementedError(
+                        f"cannot parse dates from {date_container}"
+                    )
 
                 yield {
                     "title": title,
@@ -327,9 +363,15 @@ class SymphonyHallFetcher(Fetcher):
 
 
 class HippodromeFetcher(Fetcher):
-    def fetch(self, theatre_config):
+
+    name = "Hippodrome"
+    root_url = "https://www.birminghamhippodrome.com/"
+    url = "https://www.birminghamhippodrome.com/whats-on/"
+    active = True
+
+    def fetch(self):
         """Fetch shows from the Hippodrome Theatre"""
-        url = theatre_config["url"]
+        url = self.url
 
         while True:
             html = _fetch_html_requests(url)
@@ -395,8 +437,14 @@ class HippodromeFetcher(Fetcher):
 
 
 class ResortsWorldFetcher(Fetcher):
-    def fetch(self, theatre_config):
-        html = _fetch_html_selenium(theatre_config["url"])
+
+    name = "Resortsworld Arena"
+    root_url = "https://www.resortsworldarena.co.uk/"
+    url = "https://www.resortsworldarena.co.uk/whats-on/"
+    active = True
+
+    def fetch(self):
+        html = _fetch_html_selenium(self.url)
         soup = BeautifulSoup(html, "lxml")
 
         # First build up a mapping of event name to image url. This is JSON after
@@ -426,7 +474,7 @@ class ResortsWorldFetcher(Fetcher):
         for event in events:
             link_tag = event.find("a", class_="eventhref")
             title = link_tag.find("span", class_="title").text
-            link_url = "".join([theatre_config["root_url"], link_tag.attrs["href"]])
+            link_url = "".join([self.root_url, link_tag.attrs["href"]])
             image_url = image_mapping[title.lower()]
             date_text = event.find("span", class_="date").text
 
@@ -461,8 +509,14 @@ class ResortsWorldFetcher(Fetcher):
 
 
 class ArenaBirminghamFetcher(Fetcher):
-    def fetch(self, theatre_config):
-        html = _fetch_html_selenium(theatre_config["url"])
+
+    name = "Arena Birmingham"
+    root_url = "https://www.arenabham.co.uk/"
+    url = "https://www.arenabham.co.uk/whats-on/"
+    active = True
+
+    def fetch(self):
+        html = _fetch_html_selenium(self.url)
         soup = BeautifulSoup(html, "lxml")
 
         # First build up a mapping of event name to image url. This is JSON after
@@ -492,7 +546,7 @@ class ArenaBirminghamFetcher(Fetcher):
 
         for event in events:
             link_tag = event.find("a", class_="eventhref")
-            link_url = "".join([theatre_config["root_url"], link_tag.attrs["href"]])
+            link_url = "".join([self.root_url, link_tag.attrs["href"]])
 
             title = event.find("span", class_="title").text
 
@@ -509,7 +563,9 @@ class ArenaBirminghamFetcher(Fetcher):
                 # Assume the start date is the full format
                 try:
                     augmented_date = f"{parts[0]} {end_date.year}"
-                    tmp_date = datetime.datetime.strptime(augmented_date, "%d %B %Y").date()
+                    tmp_date = datetime.datetime.strptime(
+                        augmented_date, "%d %B %Y"
+                    ).date()
                 except ValueError as exc:
                     if "does not match format" in str(exc):
                         augmented_date = f"{parts[0]} {end_date.month} {end_date.year}"
@@ -534,13 +590,19 @@ class ArenaBirminghamFetcher(Fetcher):
 
 
 class ArtrixFetcher(Fetcher):
-    def fetch(self, theatre_config):
+
+    name = "Arena Birmingham"
+    root_url = "https://www.artrix.co.uk/"
+    url = "https://www.artrix.co.uk/whats-on/"
+    active = True
+
+    def fetch(self):
         page = 1
 
         # Loop over all pages
         while True:
             params = urlencode({"page": page})
-            url = theatre_config["url"] + "?" + params
+            url = self.url + "?" + params
 
             html = _fetch_html_requests(url)
             soup = BeautifulSoup(html, "lxml")
@@ -553,11 +615,9 @@ class ArtrixFetcher(Fetcher):
 
             for event in events:
                 link_tag = event.find("div", class_="imgBox_Intrment").find("a")
-                link_url = "".join([theatre_config["root_url"], link_tag.attrs["href"]])
+                link_url = "".join([self.root_url, link_tag.attrs["href"]])
 
-                image_url = "".join(
-                    [theatre_config["root_url"], link_tag.find("img").attrs["src"]]
-                )
+                image_url = "".join([self.root_url, link_tag.find("img").attrs["src"]])
 
                 title = event.find("div", class_="intrment_info").find("a").text
 
@@ -606,8 +666,14 @@ class ArtrixFetcher(Fetcher):
 
 
 class AlexFetcher(Fetcher):
-    def fetch(self, theatre_config):
-        html = _fetch_html_requests(theatre_config["url"])
+
+    name = "New Alexandra"
+    root_url = "https://www.atgtickets.com/"
+    url = "https://www.atgtickets.com/venues/the-alexandra-theatre-birmingham/"
+    active = True
+
+    def fetch(self):
+        html = _fetch_html_requests(self.url)
         soup = BeautifulSoup(html, "lxml")
 
         container = soup.find("section", {"class": re.compile(r"WhatsOnPanel.*")})
@@ -615,12 +681,14 @@ class AlexFetcher(Fetcher):
             card_image_tag = event.find("div", {"class": re.compile(r"ShowCard_.*")})
 
             link_tag = card_image_tag.find("a")
-            link_url = "".join([theatre_config["root_url"], link_tag.attrs["href"]])
+            link_url = "".join([self.root_url, link_tag.attrs["href"]])
 
             image_tag = card_image_tag.find("img")
             image_url = image_tag.attrs["src"]
 
-            card_details_tag = event.find("div", {"class": re.compile("WhatsOnPanel.*")})
+            card_details_tag = event.find(
+                "div", {"class": re.compile("WhatsOnPanel.*")}
+            )
             title = card_details_tag.find("h3").find("a").text
 
             date_text = card_details_tag.find("div").text
@@ -629,7 +697,9 @@ class AlexFetcher(Fetcher):
                 parts = [p.strip() for p in date_text.split("-")]
                 end_date = datetime.datetime.strptime(parts[1], "%a %d %b %Y").date()
                 try:
-                    start_date = datetime.datetime.strptime(parts[0], "%a %d %b %Y").date()
+                    start_date = datetime.datetime.strptime(
+                        parts[0], "%a %d %b %Y"
+                    ).date()
                 except ValueError as exc:
                     if "does not match format" in str(exc):
                         start_date = datetime.datetime.strptime(
@@ -650,7 +720,13 @@ class AlexFetcher(Fetcher):
 
 
 class WarwickArtsCentreFetcher(Fetcher):
-    def fetch(self, theatre_config):
+
+    name = "New Alexandra"
+    root_url = "https://www.warwickartscentre.co.uk/"
+    url = "https://www.warwickartscentre.co.uk/whats-on/list"
+    active = True
+
+    def fetch(self):
         start_idx = 0
 
         def fix_date_text(txt):
@@ -688,7 +764,7 @@ class WarwickArtsCentreFetcher(Fetcher):
         while True:
 
             params = urlencode({"start": start_idx})
-            url = theatre_config["url"] + "?" + params
+            url = self.url + "?" + params
 
             html = _fetch_html_requests(url)
             soup = BeautifulSoup(html, "lxml")
@@ -703,7 +779,7 @@ class WarwickArtsCentreFetcher(Fetcher):
             for event in events:
 
                 image_tag = event.find("a", class_="media")
-                link_url = "".join([theatre_config["root_url"], image_tag.attrs["href"]])
+                link_url = "".join([self.root_url, image_tag.attrs["href"]])
                 image_url = image_tag.find("img").attrs["src"]
 
                 title = event.find("div", class_="body").find("h2").text
@@ -780,13 +856,6 @@ def main():
 
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "-c",
-        "--config",
-        required=False,
-        default="config.ini",
-        type=argparse.FileType(mode="r"),
-    )
-    parser.add_argument(
         "-r",
         "--reset",
         action="store_true",
@@ -804,12 +873,12 @@ def main():
 
     # Run the ingestion
 
-    config = load_config(args.config)
-    for theatre_config in config:
-        if not theatre_config["active"]:
-            LOG.info("Theatre %s is not active, skipping", theatre_config["name"])
+    for fetcher_cls in Fetcher.fetchers:
+        LOG.info("fetching using %s", fetcher_cls.name)
+        if fetcher_cls.active is False:
             continue
 
-        shows = fetch_shows(theatre_config)
+        fetcher = fetcher_cls()
+        shows = fetcher.fetch()
         for show in shows:
-            upload(theatre_config["name"], show)
+            upload(fetcher.name, show)
