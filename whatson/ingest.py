@@ -591,7 +591,7 @@ class ArenaBirminghamFetcher(Fetcher):
 
 class ArtrixFetcher(Fetcher):
 
-    name = "Arena Birmingham"
+    name = "Artrix"
     root_url = "https://www.artrix.co.uk/"
     url = "https://www.artrix.co.uk/whats-on/"
     active = True
@@ -721,7 +721,7 @@ class AlexFetcher(Fetcher):
 
 class WarwickArtsCentreFetcher(Fetcher):
 
-    name = "New Alexandra"
+    name = "Warwick Arts Centre"
     root_url = "https://www.warwickartscentre.co.uk/"
     url = "https://www.warwickartscentre.co.uk/whats-on/list"
     active = True
